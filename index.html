@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1D6A54">
+<meta name="color-scheme" content="light only">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Grow It Yourself</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a passbook-style study app. Sticky tab bar, course = module index + lesson reader, plan/tools/glossary as their own views. */
+:root{
+  --paper:#EEF2EF; --card:#FFFFFF; --ink:#15211D; --muted:#56655F; --line:#D3DCD7;
+  --accent:#1D6A54; --accent-ink:#FFFFFF; --accent-soft:#DDEDE6; --accent-line:#9CC7B6; --gold:#A8701A; --gold-soft:#F6EBD6; --gold-line:#DDB878; --warn:#B0412C; --warn-soft:#F7E2DD; --warn-line:#E3A496;
+  --c1:#1D6A54; --c2:#C0392B; --c3:#3E6FB0; --c4:#C89423;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+:root, :root[data-theme="dark"]{color-scheme:light}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0;-webkit-text-size-adjust:100%;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px}
+.brand{font-family:var(--display);font-weight:800;font-size:1.3rem;letter-spacing:-.02em;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:8px}
+.brand i{display:inline-block;width:22px;height:22px;border-radius:50%;background:conic-gradient(var(--accent) 0 72%, var(--gold) 72% 100%)}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav.tabs a{text-decoration:none;color:var(--muted);padding:6px 12px;border-radius:999px;font-weight:700;font-size:.95rem}
+nav.tabs a[aria-current="page"]{background:var(--accent-soft);color:var(--ink)}
+.prog{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.bar{width:110px;height:8px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar b{display:block;height:100%;background:var(--accent);width:0}
+main{padding-block:28px 64px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(1.9rem,4.5vw,2.8rem);margin:.2em 0 .3em;font-weight:800}
+h2{font-size:1.45rem;margin:1.6em 0 .4em;font-weight:700}
+h3{font-size:1.1rem;margin:1.2em 0 .3em;font-weight:700}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.12rem;color:var(--muted);max-width:62ch}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* home */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:start}
+.hero > *{min-width:0}
+.ledger{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.ledger h3{margin-top:0}
+.ledger table{width:100%;border-collapse:collapse;font-size:.95rem}
+.ledger td,.ledger th{padding:7px 4px;border-bottom:1px dashed var(--line);text-align:right}
+.ledger td:first-child,.ledger th:first-child{text-align:left}
+.ledger tr:last-child td{border-bottom:0;font-weight:700}
+.ledger th{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.up{color:var(--accent)}
+.modgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:14px}
+.modcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+.modcard:hover{border-color:var(--accent)}
+.modcard strong{font-family:var(--display);font-size:1.1rem}
+.modcard span{color:var(--muted);font-size:.92rem}
+.modcard .mini{height:5px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:auto}
+.modcard .mini b{display:block;height:100%;background:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:10px 16px;background:var(--accent);color:var(--accent-ink);font-weight:700;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+/* course */
+.course{display:grid;grid-template-columns:290px 1fr;gap:32px;align-items:start}
+.course > *{min-width:0}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px);max-height:calc(100vh - 100px);overflow:auto;padding-right:4px}
+.side details{margin-bottom:6px}
+.side summary{font-family:var(--display);font-weight:700;cursor:pointer;padding:6px 0;list-style:none;display:flex;justify-content:space-between;gap:8px}
+.side summary::-webkit-details-marker{display:none}
+.side summary small{font-family:var(--mono);font-weight:400;color:var(--muted)}
+.side ol{list-style:none;margin:0 0 8px;padding:0;border-left:2px solid var(--line)}
+.side li a{display:flex;gap:8px;align-items:baseline;padding:5px 10px;text-decoration:none;color:var(--muted);font-size:.93rem;margin-left:-2px;border-left:2px solid transparent}
+.side li a.on{color:var(--ink);border-left-color:var(--accent);background:var(--accent-soft)}
+.side li a .tick{flex:none;width:14px;font-size:.8rem;color:var(--accent)}
+.side-toggle{display:none}
+article.lesson{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,4vw,40px)}
+article.lesson .content{max-width:68ch}
+.content p,.content li{max-width:68ch}
+.content ul,.content ol{padding-left:1.3em}
+.content li{margin:.3em 0}
+.content .tbl{overflow-x:auto;margin:1em 0}
+.content table{border-collapse:collapse;font-size:.93rem;min-width:420px}
+.content th,.content td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+.content th{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:400}
+.content td.r,.content th.r{text-align:right;font-variant-numeric:tabular-nums}
+.note{position:relative;border-radius:12px;padding:14px 16px;margin:1.2em 0;background:var(--accent-soft);border:1px solid var(--accent-line)}
+.note.prof{background:var(--gold-soft);border-color:var(--gold-line)}
+.note.warn{background:var(--warn-soft);border-color:var(--warn-line)}
+.note b.tag{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.note p{margin:.3em 0}
+.meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-family:var(--mono);font-size:.8rem}
+.block{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.block h2{margin-top:0;font-size:1.2rem}
+.steps label{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+.steps input{margin-top:5px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+.q{margin:16px 0 22px}
+.q p.ask{font-weight:700;margin:0 0 8px}
+.q .opts{display:grid;gap:8px}
+.q button.opt{text-align:left;padding:10px 14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px}
+.q button.opt:hover:not(:disabled){border-color:var(--accent)}
+.q button.opt.right{border-color:var(--accent);background:var(--accent-soft)}
+.q button.opt.wrong{border-color:var(--warn);background:var(--warn-soft)}
+.q .why{margin-top:8px;font-size:.95rem;color:var(--muted)}
+.pager{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:28px}
+/* plan & tools */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px}
+.grid2 > *{min-width:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel h2{margin-top:0;font-size:1.25rem}
+.panel p{max-width:65ch}
+.check li{list-style:none}
+.check{padding:0;margin:0;counter-reset:s}
+.check li label{display:grid;grid-template-columns:auto 22px 1fr;gap:10px;align-items:start;padding:9px 0;border-bottom:1px dashed var(--line)}
+.check li label::before{counter-increment:s;content:counter(s);font-family:var(--mono);color:var(--muted);font-size:.8rem;padding-top:3px;width:1.4em}
+.check input{accent-color:var(--accent);width:18px;height:18px;margin-top:3px}
+.check small{display:block;color:var(--muted)}
+.stack{margin:10px 0 4px}
+.stack .row{display:grid;grid-template-columns:70px 1fr;gap:10px;align-items:center;margin:8px 0;font-size:.9rem}
+.stack .seg{display:flex;height:22px;border-radius:6px;overflow:hidden;background:var(--line)}
+.stack .seg span{height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+.form input,.form select,textarea{font:inherit;font-family:var(--mono);font-size:.95rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);width:100%}
+textarea{font-family:var(--body);min-height:220px;line-height:1.5}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.out div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.out small{display:block;color:var(--muted);font-size:.78rem}
+.out b{font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.fine{font-size:.85rem;color:var(--muted)}
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px}
+.gloss div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.gloss dt{font-family:var(--display);font-weight:700}
+.gloss dd{margin:4px 0 0;color:var(--muted);font-size:.95rem}
+.search{max-width:360px;margin:8px 0 18px}
+.sources li{margin:.35em 0}
+footer{border-top:1px solid var(--line);padding-block:20px 40px;color:var(--muted);font-size:.85rem}
+
+/* notes & pins */
+.notes-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font-weight:700;font-size:.9rem;min-height:36px}
+.notes-btn[aria-expanded="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.count{background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:0 7px;font-size:.75rem;line-height:1.5}
+.pin-sec{margin-left:10px;vertical-align:middle;font-family:var(--body);font-size:.75rem;font-weight:700;letter-spacing:0;padding:3px 10px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--muted);min-height:28px}
+.note > .pin-sec{position:absolute;top:10px;right:10px;margin:0}
+.note > b.tag{padding-right:80px}
+.pin-sec.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.notes-box textarea{min-height:110px;background:var(--card)}
+.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:30;display:flex;gap:4px;background:var(--ink);border-radius:12px;padding:5px;box-shadow:0 8px 24px rgba(10,30,25,.3)}
+.selbar button{background:none;border:0;color:var(--card);padding:10px 14px;border-radius:8px;font-weight:700;min-height:44px}
+.flash{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 84px);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:10px;z-index:31;max-width:calc(100% - 32px);text-align:center}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);z-index:25;background:var(--paper);border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(10,30,25,.15);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dr-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.dr-head h2{margin:0;font-size:1.2rem}
+.dr-tools{display:grid;gap:8px;padding:12px 16px}
+.dr-modes{display:flex;gap:6px}
+.dr-modes button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:8px;font-weight:700;min-height:40px}
+.dr-modes button.on{background:var(--accent-soft);border-color:var(--accent)}
+.dr-modes button:disabled{opacity:.45}
+#drSearch{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);width:100%}
+#drBody{flex:1;overflow:auto;padding:0 16px 16px}
+.dr-foot{padding:10px 16px;border-top:1px solid var(--line);background:var(--card)}
+.dr-group h3{font-size:1rem;margin:16px 0 6px}
+.pin-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+.pin-card header{display:flex;gap:8px;align-items:baseline;margin-bottom:6px}
+.pin-kind{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);border:1px solid var(--accent-line);border-radius:5px;padding:0 5px;flex:none}
+.pin-card blockquote{margin:6px 0;padding:6px 10px;border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:0 8px 8px 0}
+.pin-card .pin-html{font-size:.92rem;max-height:260px;overflow:auto}
+.pin-card .pin-html h2{font-size:1.05rem;margin:0 0 4px}
+.pin-card textarea{min-height:60px;margin-top:8px;font-size:.92rem}
+.pin-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.small-btn{padding:6px 12px;font-size:.88rem}
+.linkish{background:none;border:0;padding:0;color:var(--accent);font-weight:700;text-align:left;text-decoration:underline}
+.dr-empty{color:var(--muted)}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr}
+  .course{grid-template-columns:1fr}
+  .side{position:static;max-height:none;display:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  .side.open{display:block}
+  .side-toggle{display:inline-flex;margin-bottom:12px}
+  .top .wrap{gap:6px 10px;padding-block:8px 4px}
+  nav.tabs{margin-left:0;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  nav.tabs a{padding:5px 10px;white-space:nowrap;font-size:.9rem}
+  .prog{margin-left:auto}
+  .bar{display:none}
+  .lw{display:none}
+  .brand{font-size:1.15rem}
+}
+.how{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0}
+.how summary{cursor:pointer;padding:14px 16px;font-family:var(--display);font-weight:700;font-size:1.05rem;list-style:none;display:flex;justify-content:space-between;gap:10px;min-height:48px;align-items:center}
+.how summary::-webkit-details-marker{display:none}
+.how summary::after{content:"+";font-family:var(--mono);color:var(--muted);font-size:1.2rem}
+.how[open] summary::after{content:"–"}
+.how > div{padding:0 16px 14px}
+.how ol{padding-left:1.3em;margin:.4em 0}
+.how li{margin:.45em 0}
+.kbd{font-family:var(--mono);font-size:.85em;background:var(--accent-soft);border-radius:5px;padding:1px 6px;white-space:nowrap}
+.callout-phone{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);border-radius:14px;padding:14px 18px;margin-top:22px}
+.callout-phone p{margin:0;flex:1 1 240px}
+@media (max-width:860px){ .q button.opt{padding:12px 14px;min-height:48px} .steps label,.check li label{min-height:44px} }
+@media (prefers-reduced-motion:no-preference){.bar b,.mini b{transition:width .4s ease}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#home"><i aria-hidden="true"></i>Grow It Yourself</a>
+  <div class="prog"><div class="bar"><b id="pbar"></b></div><span id="ptxt">0%</span></div>
+  <button type="button" class="notes-btn" id="notesBtn" aria-expanded="false" aria-controls="drawer">Notes <span class="count" id="nCount" hidden>0</span></button>
+  <nav class="tabs" aria-label="Sections">
+    <a href="#home" data-tab="home">Start</a>
+    <a href="#why-invest" data-tab="course">Course</a>
+    <a href="#plan" data-tab="plan">My plan</a>
+    <a href="#tools" data-tab="tools">Calculators</a>
+    <a href="#glossary" data-tab="glossary">Glossary</a>
+    <a href="#android" data-tab="android">On Android</a>
+  </nav>
+</div></header>
+
+<main class="wrap" id="app"></main>
+<aside class="drawer" id="drawer" hidden aria-label="Notes and pins">
+  <div class="dr-head"><h2>Notes &amp; pins</h2><button type="button" class="btn ghost small-btn dr-close">Close</button></div>
+  <div class="dr-tools">
+    <div class="dr-modes"><button type="button" data-drm="lesson">This lesson</button><button type="button" data-drm="all">Everything</button></div>
+    <input id="drSearch" type="search" placeholder="Search your notes and pins" aria-label="Search notes and pins">
+  </div>
+  <div id="drBody"></div>
+  <div class="dr-foot"><button type="button" class="btn ghost small-btn" id="drCopy">Copy all notes</button></div>
+</aside>
+<div class="selbar" id="selbar" hidden><button type="button" id="selPin">Pin selection</button><button type="button" id="selX">Cancel</button></div>
+
+<footer><div class="wrap">For education, not personal financial advice. I'm not a licensed advisor. Rules, limits and fund figures were checked on November 2, 2026; confirm your own contribution room in CRA My Account before depositing.</div></footer>
+
+<script>
+/* ============ YOUR NUMBERS ============ */
+const ME = {
+  holdings:[
+    {t:"VUN", name:"Vanguard U.S. Total Market Index ETF", book:4124.01, gain:1161.08, value:5285.09},
+    {t:"VFV", name:"Vanguard S&P 500 Index ETF", book:1792.22, gain:430.96, value:2223.18}
+  ],
+  total:7508.27, book:5916.23, gain:1592.04
+};
+const money = (n,d=0)=> (n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-CA",{minimumFractionDigits:d,maximumFractionDigits:d});
+
+/* ============ COURSE ============ */
+const MODULES = [
+{ id:"m1", title:"Foundations", blurb:"Why investing works, what risk really means, and how to read your own numbers.", lessons:[
+
+{ id:"why-invest", title:"Why invest at all", mins:8,
+body:`<p>Money sitting in a bank account feels safe, but it quietly loses value. Prices rise every year, so the same $1,000 buys less next year than it does today. That is <b>inflation</b>.</p>
+<p>Right now this matters more than usual. On October 28, 2026, the Bank of Canada raised its policy rate to 2.50%, its first increase since 2023, because it expects inflation of about 3.4% by the end of this year. A chequing account paying 1.25% is losing ground in real terms.</p>
+<h2>Compounding</h2>
+<p>When you invest, your money earns a return. Next year, that return earns a return too. Over decades this snowball does most of the work.</p>
+<div class="tbl"><table><tr><th>Starting with your $7,508, at 6% a year minus a 0.20% fund fee</th><th class="r">After 30 years</th></tr>
+<tr><td>Add nothing</td><td class="r">about $41,000</td></tr>
+<tr><td>Add $200 a month</td><td class="r">about $229,000</td></tr>
+<tr><td>Of that $229,000, money you actually put in</td><td class="r">about $79,500</td></tr></table></div>
+<p>The other $149,000 or so is growth. That is why time is the most valuable thing a young investor has, and why steady contributions matter more than picking the perfect fund.</p>
+<div class="note"><b class="tag">Key idea</b><p>6% is an assumption, not a promise. Some decades are better, some are worse. Try different numbers in the Calculators tab.</p></div>`,
+quiz:[
+ {q:"Your account pays 1.25% interest and inflation is 3%. What happens to your purchasing power?", o:["It grows by 1.25% a year","It shrinks by roughly 1.75% a year","It stays the same"], a:1, why:"Your balance grows 1.25%, but prices grow 3%, so each dollar buys less."},
+ {q:"In the $200-a-month example, where does most of the final balance come from after 30 years?", o:["Your contributions","Growth on your money"], a:1, why:"About $79,500 went in; the other $149,000 or so is compounding."}
+], steps:["Open the Calculators tab and run the growth calculator with your real monthly amount"] },
+
+{ id:"risk-return", title:"Risk and return", mins:9,
+body:`<p>Higher expected returns come with bigger swings. There is no investment that is high-return, low-risk and always available. Anyone selling that is selling something else.</p>
+<h2>What risk looks like in practice</h2>
+<ul><li><b>2008–2009:</b> global stock markets fell roughly 50% from peak to bottom.</li>
+<li><b>February–March 2020:</b> the S&P 500 fell about 34% in five weeks, then recovered its losses by August.</li>
+<li><b>2022:</b> stocks and bonds fell at the same time, with US stocks down roughly 25% at the worst point.</li></ul>
+<p>Every one of those drops was followed by a recovery, but recoveries can take months or years. Risk is real only if you are forced to sell at the bottom.</p>
+<h2>Time horizon is everything</h2>
+<p>Money you need in the next few years should not be in stocks, because a crash could arrive right when you need it. Money you won't touch for 15+ years can ride out the swings.</p>
+<div class="tbl"><table><tr><th>When you need it</th><th>Sensible home</th></tr>
+<tr><td>Within 3 years (emergencies, a near-term down payment)</td><td>High-interest savings, GICs</td></tr>
+<tr><td>3 to 7 years</td><td>A mix of stocks and bonds, getting safer as the date gets closer</td></tr>
+<tr><td>10+ years (retirement)</td><td>Mostly or all stocks, if you can stay calm in a crash</td></tr></table></div>
+<h2>Two kinds of risk tolerance</h2>
+<p><b>Risk capacity</b> is how much loss your life can absorb: stable job, emergency fund, long horizon. <b>Risk tolerance</b> is how much loss your stomach can absorb without panic selling. Your portfolio should respect the lower of the two.</p>`,
+quiz:[
+ {q:"You'll need $20,000 for a down payment in 18 months. Where should it be?", o:["An all-equity ETF for the best growth","High-interest savings or GICs","Split between crypto and stocks"], a:1, why:"18 months is too short to recover from a crash. Protect money you need soon."},
+ {q:"When does a market drop become a permanent loss?", o:["Whenever prices fall","When you sell during the drop","When the news is bad"], a:1, why:"A paper loss becomes real when you sell. Diversified markets have historically recovered."}
+], steps:["Write down how you'd feel if your $7,508 became $4,500 next year. Would you sell, hold, or buy more?"] },
+
+{ id:"asset-classes", title:"Stocks, bonds and cash", mins:8,
+body:`<p>Almost every investment is built from three building blocks.</p>
+<h3>Stocks (equities)</h3>
+<p>A small slice of ownership in a company. You share in its profits through rising share prices and dividends. Highest long-run growth, biggest swings. Your VUN and VFV are 100% stocks.</p>
+<h3>Bonds (fixed income)</h3>
+<p>A loan to a government or company that pays you interest. Lower expected returns, smaller swings, and they often (not always) hold up when stocks fall. Funds like VGRO or XGRO are 80% stocks and 20% bonds.</p>
+<h3>Cash and GICs</h3>
+<p>High-interest savings accounts and Guaranteed Investment Certificates. Your balance doesn't fall, and deposits at member institutions are protected by CDIC up to set limits. Returns are low and may trail inflation. This is where emergency money and short-term goals belong.</p>
+<h2>Asset allocation</h2>
+<p>Your mix of these three is your <b>asset allocation</b>, and research consistently finds it drives most of how a portfolio behaves. Picking which stock fund matters far less than deciding how much to hold in stocks at all.</p>
+<div class="note prof"><b class="tag">Professor's note</b><p>For retirement money at your age, 100% stocks is a reasonable choice if you have an emergency fund and won't sell in a crash. Money you may need in the next few years, like a home repair fund, is a different bucket and stays in cash.</p></div>`,
+quiz:[
+ {q:"Which is most likely to fall in value over a single year?", o:["A GIC","A bond fund","A stock ETF"], a:2, why:"Stocks have the highest expected return and the biggest short-term swings."},
+ {q:"What decides most of a portfolio's ups and downs?", o:["Which individual stocks you pick","The mix of stocks, bonds and cash","The day of the week you buy"], a:1, why:"Asset allocation is the big lever."}
+], steps:[] },
+
+{ id:"read-returns", title:"Reading your Wealthsimple numbers", mins:7,
+body:`<p>Your account shows three numbers that people often mix up.</p>
+<ul><li><b>Book cost:</b> what you paid for your units, including reinvested dividends. Yours is $5,916.23.</li>
+<li><b>Market value:</b> what your units are worth today. Yours is about $7,508.</li>
+<li><b>Total return:</b> the difference, $1,592 or 26.91%.</li></ul>
+<h2>Cumulative is not annual</h2>
+<p>26.91% is your gain over the whole period, not per year. If you had invested everything at once 2.5 years ago, 26.91% would work out to about 10% a year. Because you added money at different times, some dollars have been invested for less time, so your true yearly rate is likely higher than that.</p>
+<h2>Why your gain doesn't tell you much yet</h2>
+<p>US stocks had a strong run over your holding period. A good result over 2–3 years says more about the market than about the strategy. Judge a plan by whether it fits your goals and whether you can stick to it, not by recent returns.</p>
+<div class="note"><b class="tag">Try this</b><p>In Wealthsimple, open your TFSA and look for the performance or activity view. Find your total deposits. That number, not book cost, is what counts against your TFSA room.</p></div>`,
+quiz:[
+ {q:"Your account says +26.91%. What does that mean?", o:["You earned 26.91% every year","Your total gain over the whole period is 26.91%","Wealthsimple guarantees 26.91%"], a:1, why:"It's cumulative. Annualized would be lower if measured over 2.5 years."},
+ {q:"Do reinvested dividends inside your TFSA use up contribution room?", o:["Yes","No"], a:1, why:"Only deposits use room. Growth and reinvested dividends don't."}
+], steps:["Find your total TFSA deposits in Wealthsimple and write the number on your plan page"] }
+]},
+
+{ id:"m2", title:"Canadian accounts", blurb:"TFSA, FHSA and RRSP: what each one does and which to fill first.", lessons:[
+
+{ id:"tfsa", title:"The TFSA, properly", mins:10,
+body:`<p>The Tax-Free Savings Account is a container, not an investment. Whatever grows inside it is never taxed, and withdrawals are tax-free.</p>
+<h2>2026 rules</h2>
+<ul><li>The annual limit is <b>$7,000</b> for 2026, the same as 2024 and 2025.</li>
+<li>Room builds every year from the year you turn 18 (as a Canadian resident with a SIN), even if you never open an account. Someone 18 or older in 2009 who never contributed has <b>$109,000</b> of room in 2026.</li>
+<li>Unused room carries forward forever.</li>
+<li>Withdrawals give you the room back, but only on <b>January 1 of the next year</b>.</li>
+<li>Over-contributing costs <b>1% of the excess per month</b> until it's removed.</li></ul>
+<h2>What does not count as a withdrawal</h2>
+<p>Selling VFV and buying VEQT inside your TFSA is not a withdrawal. The cash never leaves the account, so there's no tax and no effect on room. Moving money out to your chequing account and back in is a withdrawal plus a new contribution, and can push you over your limit in the same year.</p>
+<h2>The fine print on US funds</h2>
+<p>The US keeps 15% of dividends paid to TFSAs, and you can't get it back. With US stocks yielding about 1%, that's roughly 0.15% a year. It's a small drag, not a reason to avoid the TFSA.</p>
+<div class="note warn"><b class="tag">Avoid</b><p>Frequent day-trading in a TFSA can lead the CRA to treat your gains as taxable business income. Long-term, buy-and-hold investing doesn't have this problem.</p></div>`,
+quiz:[
+ {q:"You withdraw $2,000 from your full TFSA in March 2027. When can you put it back without penalty?", o:["Immediately","January 1, 2028","Never"], a:1, why:"Withdrawn amounts are added back to your room the following January 1."},
+ {q:"You sell all your VFV inside the TFSA and buy VEQT. What's the tax impact?", o:["Capital gains tax on your profit","None","It counts as a withdrawal"], a:1, why:"Trades inside a TFSA aren't taxed and aren't withdrawals."},
+ {q:"What's the penalty for over-contributing?", o:["1% of the excess per month","A one-time $100 fee","Nothing"], a:0, why:"1% per month on the highest excess amount, until you withdraw it."}
+], steps:["Log in to CRA My Account and find your TFSA contribution room","Use the TFSA room estimator in Calculators to sanity-check it"] },
+
+{ id:"fhsa", title:"The FHSA, for a future home", mins:8,
+body:`<p>The First Home Savings Account combines the best parts of the RRSP and TFSA. You get a tax deduction when you put money in, and a tax-free withdrawal when you buy your first home.</p>
+<h2>The rules</h2>
+<ul><li><b>$8,000 a year</b>, up to <b>$40,000</b> lifetime.</li>
+<li>Room only starts building <b>once you open an account</b>. Unused room carries forward, but only up to $8,000. The most you can ever put in one year is $16,000.</li>
+<li>You must be a Canadian resident, 18 or older, and a first-time buyer: you (or a spouse) haven't lived in a home you owned in this calendar year or the previous four.</li>
+<li>The account can stay open up to 15 years, or until you're 71.</li>
+<li>If you never buy, you can move the money to an RRSP tax-free without using RRSP room. Nothing is wasted.</li></ul>
+<div class="note warn"><b class="tag">Your situation</b><p>Because you own the home you live in, you can't open an FHSA right now, and it can't be used for a home you already own. You'd qualify again only once you've gone the current calendar year plus the four before it without living in a home you or a spouse owned. For example, if you sold and moved into a rental during 2027, you could open one from January 1, 2032.</p><p>The RRSP Home Buyers' Plan uses the same first-time buyer test. It's still worth knowing both, for a future move or to help a partner or family member who hasn't bought yet.</p></div>
+<h2>How first-time buyers should invest it</h2>
+<p>If the purchase is 5+ years away, an all-in-one ETF is reasonable. If it's 3 years or less, keep FHSA money in cash or GICs inside the account.</p>`,
+quiz:[
+ {q:"When does FHSA room start building?", o:["At age 18","When you first open an FHSA","When you start looking at houses"], a:1, why:"Unlike the TFSA, FHSA room starts only after you open one."},
+ {q:"You open an FHSA in 2026 and contribute nothing. What's the most you can contribute in 2027?", o:["$8,000","$16,000","$40,000"], a:1, why:"$8,000 for 2027 plus up to $8,000 carried forward from 2026."},
+ {q:"You never buy a home. What happens to your FHSA?", o:["The money is taxed as a penalty","You can transfer it to an RRSP tax-free","It's lost"], a:1, why:"A transfer to an RRSP or RRIF is tax-free and doesn't use RRSP room."}
+], steps:[] },
+
+{ id:"rrsp", title:"The RRSP and the Home Buyers' Plan", mins:9,
+body:`<p>The Registered Retirement Savings Plan is built for retirement. Contributions reduce your taxable income now; withdrawals are taxed later as income.</p>
+<h2>2026 numbers</h2>
+<ul><li>Your room is 18% of last year's earned income, up to <b>$33,810</b> for 2026 (rising to $35,390 for 2027).</li>
+<li>The deadline to contribute for the 2026 tax year is <b>March 1, 2027</b>.</li>
+<li>Withdrawals are taxed and the room is gone for good, with two exceptions below.</li></ul>
+<h2>Home Buyers' Plan</h2>
+<p>First-time buyers can take up to <b>$60,000</b> out of their RRSP tax-free to buy a home, and repay it over 15 years starting the second year after the withdrawal. You can use the HBP and an FHSA for the same home, so a couple who both qualify could put up to $80,000 of FHSA savings (plus growth) and $120,000 of HBP withdrawals toward one home.</p>
+<h2>RRSP or TFSA?</h2>
+<p>The RRSP wins when your tax rate today is higher than it will be in retirement. In general:</p>
+<ul><li><b>Lower income</b> (roughly under the high $50,000s): the TFSA usually comes first. The RRSP deduction is worth less.</li>
+<li><b>Higher income:</b> the RRSP deduction gets more valuable. A refund you then invest makes it more powerful.</li>
+<li><b>Employer match:</b> if your job ever offers RRSP or pension matching, take every dollar. It's an instant 50–100% return.</li></ul>
+<div class="note prof"><b class="tag">Professor's note: your situation</b><p>At $76,000 you earn about $13,680 of new RRSP room a year (18%), and room has been building since your first full year of Canadian income, so you probably have a lot unused. Your Notice of Assessment shows the exact figure.</p><p>With the FHSA off the table, the RRSP is your tax-cutting account. At about 28.2%, every $1,000 you contribute cuts your tax by about $282. Invest that refund, or put it on your mortgage, and the RRSP pulls ahead of the TFSA. The TFSA's advantage is flexibility: you can take money out any time without tax, which matters more as a homeowner.</p></div>`,
+quiz:[
+ {q:"What's the HBP withdrawal limit per person?", o:["$35,000","$60,000","$40,000"], a:1, why:"It rose to $60,000 for withdrawals after April 16, 2024."},
+ {q:"Your employer offers to match RRSP contributions up to 3% of salary. Should you take it?", o:["Only if you have spare money","Yes, it's free money","No, TFSAs are better"], a:1, why:"A match is an instant guaranteed return that no investment can beat."}
+], steps:[] },
+
+{ id:"account-order", title:"Which account to fill first", mins:7,
+body:`<p>With $100–$300 a month, a mortgage and three goals, order matters. Here's the order I'd teach for someone in your position.</p>
+<ol><li><b>Pay off high-interest debt.</b> Credit card interest around 20% beats any investment return.</li>
+<li><b>Build a starter emergency fund</b> of about one month of expenses in a high-interest account. Homeowners need this more, not less.</li>
+<li><b>Take any employer match</b>, if you have one.</li>
+<li><b>Finish the emergency fund</b> to 3 months, plus a cushion for home repairs.</li>
+<li><b>Split new money between your TFSA and an RRSP.</b> The RRSP refund at your tax rate is valuable; the TFSA keeps money reachable.</li>
+<li><b>Consider extra mortgage payments</b> if your mortgage rate is high. The Your home and your investments lesson covers when that beats investing.</li></ol>
+<h2>Splitting $200 a month</h2>
+<p>A simple version: $100 to the emergency fund until it's at 3 months, $100 to your TFSA. Once the emergency fund is done, send $100 to the TFSA and $100 to an RRSP, and invest the RRSP refund each spring. Raise the amounts when you can.</p>
+<div class="note"><b class="tag">Key idea</b><p>Your TFSA room is not your limit right now; your cash flow is. Your room started building when you moved to Canada in 2017, which adds up to about $62,500, so after your deposits you likely have more than $56,000 unused. The question is where each new dollar does the most work.</p></div>
+<div class="note prof"><b class="tag">Professor's note: at $76,000</b><p>At $76,000 in BC, each extra dollar you earn is taxed at about 28.2% (20.5% federal plus 7.7% provincial). So every $1,000 you put in an RRSP cuts your tax by about $282.</p><p>You'll often hear "save 10–15% of your pay". With a mortgage, that's a long-term goal, not a starting point. The principal part of each mortgage payment already builds your net worth, so it counts as saving too. Start with an amount you can keep up automatically, then raise it by $25 whenever your budget allows and with every raise.</p></div>`,
+quiz:[
+ {q:"You have a $3,000 credit card balance at 20% interest. What comes first?", o:["Investing in VEQT","Paying off the card","Opening an RRSP"], a:1, why:"Paying off 20% debt is a guaranteed 20% return."},
+ {q:"At a 28% tax rate, what does a $1,000 RRSP contribution save you in tax?", o:["About $28","About $280","$1,000"], a:1, why:"The deduction reduces taxable income by $1,000, saving tax at your top rate."}
+], steps:["Decide your monthly split and enter it on your plan page"] }
+]},
+
+{ id:"m3", title:"What to buy", blurb:"ETFs, fees, diversification, and an honest look at your VUN and VFV.", lessons:[
+
+{ id:"etfs", title:"Index funds and ETFs", mins:8,
+body:`<p>An <b>exchange-traded fund</b> is a basket of investments you can buy as a single unit on a stock exchange. One unit of VUN gives you a slice of thousands of US companies.</p>
+<p>An <b>index fund</b> doesn't try to pick winners. It buys everything in a market index, like the S&P 500, in proportion to size. Most ETFs Canadians use, including yours, are index ETFs.</p>
+<h2>Why index investing wins most of the time</h2>
+<p>Professional fund managers try to beat the market, but they charge more for trying, and most fail over long periods. Year after year, S&P's SPIVA scorecards find that the large majority of actively managed Canadian funds trail their benchmark over 10 years or more.</p>
+<p>When you buy the whole market, you get the market's return minus a tiny fee. That reliably beats most people trying to be clever.</p>
+<h2>What to look for in an ETF</h2>
+<ul><li>Broad: many companies, many countries.</li>
+<li>Cheap: a low MER (next lesson).</li>
+<li>Large and established: big providers like Vanguard, iShares (BlackRock) and BMO.</li>
+<li>Listed in Canada and traded in Canadian dollars, so you pay no currency conversion on Wealthsimple.</li></ul>`,
+quiz:[
+ {q:"What does an index fund try to do?", o:["Beat the market by picking the best stocks","Match the market by owning all of it","Avoid stocks"], a:1, why:"Index funds aim to match an index, at low cost."},
+ {q:"Over 10+ years, how do most actively managed funds do versus their index?", o:["Most beat it","Most trail it","Exactly the same"], a:1, why:"Higher fees and the difficulty of picking winners mean most trail."}
+], steps:[] },
+
+{ id:"fees", title:"Fees: the silent drain", mins:7,
+body:`<p>Every fund charges a <b>management expense ratio (MER)</b>, a yearly percentage taken from the fund's value. You never get a bill, which is why people overlook it.</p>
+<div class="tbl"><table><tr><th>MER</th><th class="r">Yearly cost on $10,000</th><th class="r">Yearly cost on $100,000</th></tr>
+<tr><td>0.09% (VFV)</td><td class="r">$9</td><td class="r">$90</td></tr>
+<tr><td>0.20% (XEQT)</td><td class="r">$20</td><td class="r">$200</td></tr>
+<tr><td>2.00% (typical bank mutual fund)</td><td class="r">$200</td><td class="r">$2,000</td></tr></table></div>
+<p>Over 30 years, a 2% fee can eat a third or more of your final balance, because the fee also takes away the growth that money would have earned. Try it in the growth calculator by changing the MER field.</p>
+<h2>Other costs</h2>
+<ul><li><b>Trading commissions:</b> $0 for Canadian ETFs on Wealthsimple.</li>
+<li><b>Currency conversion:</b> buying US-listed funds in a CAD account costs about 1.5% each way on Wealthsimple's standard plan. Stick with Canadian-listed ETFs.</li>
+<li><b>Robo-advisor fees:</b> Wealthsimple's managed accounts charge 0.40–0.50% on top of fund MERs. Buying an all-in-one ETF yourself gets you much the same thing for less.</li></ul>
+<div class="note"><b class="tag">Good news</b><p>Your current funds are cheap. Fees are not your problem. Diversification is.</p></div>`,
+quiz:[
+ {q:"An ETF has a 0.20% MER. You hold $25,000. About how much do you pay a year?", o:["$5","$50","$500"], a:1, why:"0.20% of $25,000 is $50."},
+ {q:"Why does a 2% fee hurt so much over 30 years?", o:["It's charged once","It also removes the future growth on that money","It's taxed"], a:1, why:"Fees compound against you just as returns compound for you."}
+], steps:["Run the growth calculator twice: once with 0.20% MER and once with 2%. Note the difference."] },
+
+{ id:"diversify", title:"Diversification and home bias", mins:9,
+body:`<p>Diversification means not depending on any one company, industry or country. If one part of the world struggles for a decade, others can carry you.</p>
+<h2>The US isn't always the winner</h2>
+<p>US stocks dominated the 2010s and early 2020s, so a US-only portfolio feels natural right now. But from 2000 to 2009, the S&P 500 lost money overall, a stretch people call the "lost decade". Nobody can reliably predict which region leads the next 10 years.</p>
+<h2>Where the world's stocks are</h2>
+<p>Roughly, the US is about 60% of global stock market value, Canada about 3%, and the rest is Europe, Japan, the UK, Australia and emerging markets like China, India and Taiwan.</p>
+<h2>Why Canadian funds hold so much Canada</h2>
+<p>Canadian all-in-one ETFs hold 25–30% in Canadian stocks, about ten times Canada's global weight. That's on purpose: Canadian dividends get favourable tax treatment outside registered accounts, there's no foreign withholding tax, and your future spending is in Canadian dollars. The trade-off is a heavier tilt to banks and energy.</p>
+<div class="note prof"><b class="tag">Professor's note</b><p>Your portfolio today is 100% US. That's a concentrated bet on one country, and a large share of it sits in a handful of giant tech companies. It has worked well recently. It isn't diversified.</p></div>`,
+quiz:[
+ {q:"What happened to the S&P 500 from 2000 to 2009?", o:["It doubled","It lost money overall","It was the best decade on record"], a:1, why:"The 'lost decade' is a reminder that no market always wins."},
+ {q:"Roughly what share of global stock market value is Canada?", o:["3%","30%","60%"], a:0, why:"About 3%. Canadian funds overweight it deliberately."}
+], steps:[] },
+
+{ id:"your-holdings", title:"Your VUN and VFV, examined", mins:8,
+body:`<div class="tbl"><table><tr><th></th><th>VFV</th><th>VUN</th></tr>
+<tr><td>Tracks</td><td>S&P 500: about 500 large US companies</td><td>The whole US market: large, mid and small companies, several thousand in all</td></tr>
+<tr><td>Management fee</td><td>0.08%</td><td>0.15%</td></tr>
+<tr><td>Your value</td><td class="num">$2,223</td><td class="num">$5,285</td></tr>
+<tr><td>Countries</td><td>US only</td><td>US only</td></tr></table></div>
+<h2>The overlap</h2>
+<p>The S&P 500 makes up roughly 80% of the US market's value. So about 80% of VUN is the same companies, in the same proportions, as VFV. Owning both is like ordering a large pizza and a medium pizza of the same kind. You get more pizza, not more variety.</p>
+<p>Together, your two funds behave almost exactly like VUN alone. There's nothing wrong with either fund. They're cheap and well run. They just don't add up to a diversified portfolio.</p>
+<h2>What's missing</h2>
+<ul><li>Canada: 0%</li><li>Europe, Japan and other developed markets: 0%</li><li>Emerging markets: 0%</li></ul>
+<p>Whoever suggested VUN and VFV gave you a solid, low-cost start. The next step is filling the gaps.</p>`,
+quiz:[
+ {q:"Why does owning both VFV and VUN add little diversification?", o:["They're from different providers","VFV's companies are already about 80% of VUN","VUN is only small companies"], a:1, why:"VUN already holds every S&P 500 company."},
+ {q:"How much of your current portfolio is outside the US?", o:["About 30%","About 10%","0%"], a:2, why:"Both funds hold only US stocks."}
+], steps:[] },
+
+{ id:"all-in-one", title:"All-in-one ETFs: VEQT and XEQT", mins:10,
+body:`<p>An all-in-one ETF holds a few underlying index ETFs covering the whole world and rebalances them for you. One ticker, one decision.</p>
+<div class="tbl"><table><tr><th></th><th>VEQT (Vanguard)</th><th>XEQT (iShares)</th></tr>
+<tr><td>Stocks / bonds</td><td>100 / 0</td><td>100 / 0</td></tr>
+<tr><td>US</td><td class="num">45.5%</td><td class="num">about 45%</td></tr>
+<tr><td>Canada</td><td class="num">29.7%</td><td class="num">about 25%</td></tr>
+<tr><td>Developed international</td><td class="num">17.6%</td><td class="num">about 25%</td></tr>
+<tr><td>Emerging markets</td><td class="num">7.2%</td><td class="num">about 5%</td></tr>
+<tr><td>Number of stocks</td><td class="num">about 13,900</td><td class="num">about 8,400</td></tr>
+<tr><td>Management fee</td><td class="num">0.17%</td><td class="num">0.17%</td></tr>
+<tr><td>Reported MER</td><td class="num">0.24%*</td><td class="num">0.20%</td></tr>
+<tr><td>Distributions</td><td>Once a year</td><td>Quarterly</td></tr></table></div>
+<p class="fine">VEQT allocation as of September 30, 2026 (vanguard.ca). XEQT approximate target weights; MER from its June 2026 fact sheet. *Vanguard cut VEQT's management fee from 0.22% to 0.17% on November 18, 2025. The reported MER updates only at fiscal year-end, so the real cost should settle closer to 0.20%.</p>
+<h2>Which one?</h2>
+<p>Honestly, either. They're close substitutes. VEQT holds more Canada and emerging markets; XEQT holds more developed international. Fees are now nearly identical. With DRIP on, distribution timing barely matters. Pick one and don't hold both.</p>
+<h2>What about bonds?</h2>
+<p>VGRO and XGRO are the same idea with 80% stocks and 20% bonds. They fall a bit less in crashes and grow a bit slower. A good choice if a 40% drop would make you sell.</p>
+<div class="note warn"><b class="tag">Not for short-term goals</b><p>VEQT and XEQT are 100% stocks. They're right for retirement money, not for a down payment you need in two years.</p></div>`,
+quiz:[
+ {q:"What's the main reason to choose an all-in-one ETF?", o:["Highest possible return","Global diversification and automatic rebalancing in one fund","No risk"], a:1, why:"It's a whole portfolio in one ticker."},
+ {q:"Should you own both VEQT and XEQT?", o:["Yes, for extra diversification","No, they hold nearly the same thing"], a:1, why:"They're close substitutes. Owning both adds complexity, not diversification."}
+], steps:["Read VEQT's and XEQT's fund pages yourself (links in Sources on your plan page)"] },
+
+{ id:"switching", title:"Consolidating your TFSA", mins:9,
+body:`<p>You have three options. Here's my honest read on each.</p>
+<h3>Option A: sell VUN and VFV, buy VEQT (or XEQT)</h3>
+<p>Inside a TFSA there's no tax on selling and no commission on Wealthsimple, so the usual reason to hold onto winners doesn't apply. You go from 100% US to a global portfolio today, with one fund to buy from now on. This is the cleanest choice.</p>
+<h3>Option B: keep them, send all new money to VEQT</h3>
+<p>Reasonable if selling feels uncomfortable. But at $200 a month, it would take many years before the new fund outweighs your current $7,500, so you stay mostly US for a long time.</p>
+<h3>Option C: keep only US funds</h3>
+<p>Simple and cheap, but a concentrated bet on one country. If you choose this, at least drop VFV and keep just VUN, since VUN already contains it.</p>
+<h2>How to switch in Wealthsimple</h2>
+<ol><li>Pick a weekday when the market is open (9:30 a.m. to 4 p.m. Eastern, so 6:30 a.m. to 1 p.m. your time). Avoid the first and last 15 minutes, when prices are less tight.</li>
+<li>In your TFSA, sell all your VFV, then all your VUN.</li>
+<li>Once the sales fill, buy VEQT with the full cash balance. Fractional shares let you invest every dollar.</li>
+<li>Check that dividend reinvestment (DRIP) is on for VEQT.</li>
+<li>Change any recurring investment to buy VEQT.</li></ol>
+<p>Selling and buying on the same day keeps you out of the market for minutes, not weeks. Never withdraw the cash to "wait for a dip".</p>
+<div class="note prof"><b class="tag">Professor's note</b><p>This is general education, not a personal recommendation. The decision is yours, and the right one is whichever you'll stick with.</p></div>`,
+quiz:[
+ {q:"You sell VFV inside your TFSA at a $431 gain. How much tax do you owe?", o:["$0","About 25% of the gain","15%"], a:0, why:"Gains inside a TFSA are never taxed."},
+ {q:"What should you avoid when switching funds?", o:["Selling and buying on the same day","Withdrawing the cash to wait for a better price","Using fractional shares"], a:1, why:"Leaving the market to time a re-entry is market timing, and withdrawing affects TFSA room."}
+], steps:["Choose Option A, B or C and record it on your plan page"] }
+]},
+
+{ id:"m4", title:"Behaviour", blurb:"The habits that matter more than any fund choice.", lessons:[
+
+{ id:"automate", title:"Automate everything", mins:7,
+body:`<p>The single best predictor of investing success isn't the fund. It's whether money goes in every month, in good markets and bad.</p>
+<h2>Dollar-cost averaging</h2>
+<p>Investing a fixed amount on a schedule means you automatically buy more units when prices are low and fewer when they're high. More importantly, it removes the decision. You never have to ask "is now a good time?"</p>
+<h2>Set it up in Wealthsimple</h2>
+<ol><li><b>Recurring deposit:</b> set an automatic transfer from your bank to your TFSA (and FHSA) for the day after payday.</li>
+<li><b>Recurring investment:</b> on the fund's page, choose to buy automatically weekly, every two weeks or monthly. Match it to your pay cycle.</li>
+<li><b>Dividend reinvestment:</b> turn on DRIP so distributions buy more units automatically.</li></ol>
+<h2>Pay yourself first</h2>
+<p>Move the money on payday, before you spend. If you invest "what's left at the end of the month", there's usually nothing left.</p>
+<div class="note"><b class="tag">Key idea</b><p>You said you don't contribute regularly. Fixing that one habit is worth more than any other change in this course.</p></div>`,
+quiz:[
+ {q:"What's the main benefit of investing the same amount on a schedule?", o:["It guarantees a profit","It removes the 'is now a good time?' decision","It avoids all fees"], a:1, why:"Consistency beats timing, and automation enforces consistency."},
+ {q:"When should automatic contributions happen?", o:["Right after payday","At the end of the month","When the market drops"], a:0, why:"Pay yourself first, before spending eats the money."}
+], steps:["Set up a recurring deposit and a recurring investment in Wealthsimple","Confirm DRIP is turned on"] },
+
+{ id:"crashes", title:"Surviving a crash", mins:8,
+body:`<p>You will live through several market crashes. At your age and contribution level, they're actually good for you: your monthly money buys more units at lower prices.</p>
+<h2>What a crash feels like</h2>
+<p>Headlines say "worst week since 2008". Your balance drops by thousands. Friends talk about selling. Every instinct says get out before it gets worse.</p>
+<h2>What history says</h2>
+<p>In March 2020, people who sold at the bottom locked in a 34% loss. People who kept buying were back to even by August and ahead by year-end. Missing just a handful of the best days, which tend to come right after the worst ones, has historically cut long-run returns dramatically.</p>
+<h2>Your crash plan, written in advance</h2>
+<ul><li>I will not sell long-term investments during a decline.</li>
+<li>I will keep my automatic contributions running.</li>
+<li>I will not check my balance more than once a month.</li>
+<li>If I have extra cash and my emergency fund is full, I may invest more.</li></ul>
+<p>Write this into your investing policy on the plan page now, while you're calm. Then read it when you're not.</p>`,
+quiz:[
+ {q:"The market drops 30%. You have 25 years until retirement. What's the usual best move?", o:["Sell and wait for it to settle","Keep contributing as planned","Switch to crypto"], a:1, why:"For long-term money, keep buying on schedule."},
+ {q:"Why is a crash good news for a young, regular contributor?", o:["It isn't","Each contribution buys more units at lower prices"], a:1, why:"You're a net buyer for decades. Lower prices help buyers."}
+], steps:["Run the crash test in Calculators at 40%"] },
+
+{ id:"noise", title:"Ignoring the noise", mins:8,
+body:`<p>The investing world is built to make you trade. Apps, influencers and news all earn more when you act. Your edge is not acting.</p>
+<h2>Things that usually hurt beginners</h2>
+<ul><li><b>Market timing:</b> waiting for "the dip" or selling before "the crash". Nobody does this reliably.</li>
+<li><b>Hot stocks and tips:</b> by the time it's on TikTok, it's priced in.</li>
+<li><b>Options and leveraged ETFs:</b> Wealthsimple makes options free to trade. Free isn't the same as wise. Most options buyers lose money.</li>
+<li><b>Crypto:</b> extremely volatile and speculative. If you hold any, keep it small.</li>
+<li><b>High-yield "income" ETFs:</b> a 10–15% yield often means the fund sells future growth (covered calls) or pays out your own capital. Total return is what matters.</li></ul>
+<h2>A speculation budget</h2>
+<p>If you want to play, cap it at 5% of your investments in a separate account. Your real money stays boring. Boring compounds.</p>`,
+quiz:[
+ {q:"An ETF advertises a 14% yield. What should you check first?", o:["Its total return and how the yield is produced","Nothing, high yield is good","Whether it's popular"], a:0, why:"High yields can come from covered calls or return of capital, which limit growth."},
+ {q:"What's a reasonable cap on speculative bets?", o:["5% of investments","50%","Everything you have"], a:0, why:"Keep it small enough that losing it all doesn't change your plan."}
+], steps:[] }
+]},
+
+{ id:"m5", title:"Your money, your goals", blurb:"Budgeting, emergency fund, debt, your home, insurance and retirement.", lessons:[
+
+{ id:"budget", title:"Finding the money with a mortgage", mins:9,
+body:`<p>Investing advice often assumes spare cash. With a mortgage, there may not be much. The goal isn't a perfect budget. It's finding a small, steady amount you can automate, then growing it.</p>
+<h2>Step 1: see where it goes</h2>
+<p>Export two or three months of transactions from your bank and card apps and sort them into a few groups: housing (mortgage, property tax, strata, insurance, utilities), transport, groceries, debt payments, subscriptions, everything else. Most people find two or three surprises.</p>
+<h2>Step 2: plan for irregular bills</h2>
+<p>Property tax, home insurance, car insurance and repairs arrive once or twice a year and wreck budgets. Divide each yearly cost by 12 and set that aside monthly in a separate savings account (a "sinking fund"). Then those bills stop feeling like emergencies.</p>
+<h2>Step 3: find $25 at a time</h2>
+<ul><li>Cancel one or two subscriptions you don't use.</li>
+<li>Call your phone, internet and insurance providers once a year and ask for a better rate.</li>
+<li>Set a weekly limit for takeout and delivery instead of cutting it entirely.</li>
+<li>Redirect every paid-off debt payment straight into investing.</li></ul>
+<h2>A useful guide, not a rule</h2>
+<p>The "50/30/20" split (50% needs, 30% wants, 20% saving and extra debt payments) is a starting point. In high-cost cities, housing alone can take 40% or more. If that's you, start smaller, at 3–5%, and raise it over time. Your mortgage principal is already a form of saving.</p>
+<div class="note"><b class="tag">Key idea</b><p>$150 a month that never stops beats $500 a month that you cancel after three months.</p></div>`,
+quiz:[
+ {q:"Your property tax is $3,600 a year. How much should go into a sinking fund each month?", o:["$100","$300","$3,600"], a:1, why:"$3,600 ÷ 12 = $300, so the bill is covered when it arrives."},
+ {q:"What's the best use of a payment freed up when a debt is paid off?", o:["Spend it","Redirect it to saving or investing"], a:1, why:"You're already used to living without it."}
+], steps:["Sort the last two months of spending into groups","Set up a sinking fund for property tax and insurance"] },
+
+{ id:"emergency", title:"The emergency fund", mins:7,
+body:`<p>An emergency fund is what lets you leave your investments alone. Without one, a lost job or car repair forces you to sell, possibly in a crash.</p>
+<h2>How much</h2>
+<p>Aim for <b>3 to 6 months of essential expenses</b>: mortgage, property tax, strata fees, food, utilities, transport, minimum debt payments. Not your full spending. Lean toward 6 months if your income is irregular or you're the only earner.</p>
+<p><b>As a homeowner</b>, add a separate home repair cushion on top, building toward 1% of your home's value. A failed water heater or roof leak shouldn't touch your investments.</p>
+<h2>Where to keep it</h2>
+<ul><li>A high-interest savings account or Wealthsimple's chequing account (1.25% to 2.25% depending on your tier, with a boost for direct deposit).</li>
+<li>Cashable GICs for part of it, if rates are better.</li>
+<li>Not in VEQT or any stock fund.</li></ul>
+<p>Some people keep their emergency fund in their TFSA, in cash or a high-interest savings ETF, so the interest is tax-free. That works, but remember a withdrawal's room only comes back the next January.</p>
+<h2>Build it in stages</h2>
+<p>Start with one month. That alone covers most surprises. Then work up to three while also funding your FHSA.</p>`,
+quiz:[
+ {q:"What should an emergency fund be invested in?", o:["An all-equity ETF","Cash or GICs","Crypto"], a:1, why:"It must be there, at full value, when you need it."},
+ {q:"What should the target be based on?", o:["Your gross salary","Your essential monthly expenses","Your TFSA room"], a:1, why:"It needs to cover the bills you can't stop paying."}
+], steps:["Add up your essential monthly expenses and enter them on your plan page"] },
+
+{ id:"debt", title:"Debt: good, bad and expensive", mins:12,
+body:`<p>Debt is investing in reverse. When you invest, compounding works for you. When you owe, it works against you, at whatever rate the lender charges.</p>
+<h2>What makes debt "good"</h2>
+<p>No debt is good by itself. Debt can be <b>useful</b> when all of these are true:</p>
+<ul><li><b>The rate is low</b>, ideally below what your money could reasonably earn elsewhere.</li>
+<li><b>It buys something that lasts or grows</b>: a home you live in, an education or skill that raises your income.</li>
+<li><b>The payments fit comfortably</b> in your budget, even if rates rise or your income dips.</li>
+<li><b>It has a clear end date.</b></li></ul>
+<p>Your mortgage is the classic example. It lets you own an appreciating asset decades sooner than saving cash, and you'd be paying rent anyway. Leverage also works both ways, though: if prices fall, you still owe the full amount.</p>
+<h2>What makes debt bad</h2>
+<ul><li><b>High interest:</b> credit cards charge around 20% or more, store cards and payday loans far more. No investment reliably earns 20%.</li>
+<li><b>It pays for things that lose value or are already gone:</b> vacations, takeout, gadgets.</li>
+<li><b>It rolls over:</b> paying only the minimum keeps you in debt for years.</li></ul>
+<div class="tbl"><table><tr><th>Type</th><th>Typical cost</th><th>Usually</th></tr>
+<tr><td>Mortgage</td><td>Low</td><td>Useful, if affordable</td></tr>
+<tr><td>Federal student loans</td><td>The federal portion has been interest-free since April 2023</td><td>Useful; no rush to prepay</td></tr>
+<tr><td>Car loan</td><td>Low to medium; the car loses value</td><td>Neutral. Buy modest, pay off quickly</td></tr>
+<tr><td>Line of credit / HELOC</td><td>Variable, rises with rates</td><td>Handy for emergencies, risky as a habit</td></tr>
+<tr><td>Buy now, pay later</td><td>0% until a missed payment, then steep fees</td><td>Easy to overuse</td></tr>
+<tr><td>Credit card balance</td><td>About 20%+</td><td>Pay off first, always</td></tr></table></div>
+<h2>Borrowing to invest</h2>
+<p>Some people borrow to invest: margin accounts (Wealthsimple offers these), investment loans, or the "Smith Manoeuvre" using a HELOC. Interest on money borrowed to invest in a non-registered account can be tax-deductible, and in good markets it amplifies gains. It also amplifies losses, and a margin call can force you to sell at the bottom. This is an advanced strategy. Don't try it until you have years of investing experience, a full emergency fund and stable income.</p>
+<h2>Paying debt off</h2>
+<ul><li><b>Avalanche:</b> pay minimums on everything and throw extra money at the highest rate first. Saves the most interest.</li>
+<li><b>Snowball:</b> pay off the smallest balance first for a quick win. Costs a little more, but helps some people stick with it.</li>
+<li>Either way, stop adding to the balance, and ask about a lower rate or a balance transfer if you're stuck.</li></ul>
+<h2>Your credit score</h2>
+<p>In Canada, Equifax and TransUnion track your credit. Your score shapes your mortgage renewal options and the rates you're offered. The basics: pay every bill on time, keep card balances well under 30% of your limits, keep old accounts open, and don't apply for lots of credit at once. You can check your score free through several Canadian apps and banks.</p>
+<div class="note prof"><b class="tag">Professor's rule</b><p>Any debt above about 7–8% interest: pay it off before investing beyond your emergency fund and any employer match. Debt below about 4%: no rush, invest instead. In between: split your extra money between the two.</p></div>`,
+quiz:[
+ {q:"Which debt is most worth paying off before investing?", o:["A 4% mortgage","A 21% credit card balance","An interest-free federal student loan"], a:1, why:"Paying off a 21% card is a guaranteed 21% return."},
+ {q:"What makes a mortgage 'good' debt?", o:["All debt is good","Low rate, a lasting asset and affordable payments","It's tax-deductible for everyone"], a:1, why:"Debt is useful only when the cost is low, the purpose lasts and the payments fit."},
+ {q:"What's the main danger of borrowing to invest?", o:["It's illegal","Losses are amplified and you may be forced to sell","It has no tax benefit"], a:1, why:"Leverage magnifies both gains and losses."}
+], steps:["List every debt you have with its balance and interest rate","Run the debt payoff calculator for any balance above 7%"] },
+
+{ id:"your-home", title:"Your home and your investments", mins:10,
+body:`<p>Owning a home changes your plan in three ways. It adds a big fixed cost, it adds surprise costs, and it gives you a guaranteed alternative to investing: paying your mortgage down faster.</p>
+<h2>Your home is net worth, not a portfolio</h2>
+<p>Your home is one asset in one city. You can't sell a piece of it to cover a car repair, and you need somewhere to live. Count it in your net worth, but keep building investments that are diversified and easy to reach.</p>
+<h2>Budget for upkeep</h2>
+<p>A common rule of thumb is <b>1% to 2% of your home's value a year</b> for maintenance and repairs: roofs, water heaters, appliances, strata special levies. That's why homeowners need a bigger cash cushion than renters.</p>
+<h2>Pay down the mortgage or invest?</h2>
+<p>Every extra dollar on your mortgage "earns" your mortgage rate, guaranteed and tax-free. Investing may earn more over decades, but with ups and downs and no guarantee.</p>
+<div class="tbl"><table><tr><th>Your mortgage rate</th><th>Lean toward</th></tr>
+<tr><td>Under about 4%</td><td>Investing in your TFSA or RRSP usually wins over the long run</td></tr>
+<tr><td>About 4% to 6%</td><td>A close call. Splitting extra money between the two is reasonable</td></tr>
+<tr><td>Over about 6%</td><td>Extra payments are hard to beat on a risk-adjusted basis</td></tr></table></div>
+<p>A combination works well: put money in an RRSP, then use the tax refund as a lump-sum mortgage payment. Check your mortgage's <b>prepayment privileges</b> first. Most let you prepay 10–20% a year without penalty; going over can be expensive.</p>
+<p>Try your own numbers in the <b>Pay down or invest</b> calculator.</p>
+<h2>Plan for renewal</h2>
+<p>The Bank of Canada raised rates in October 2026 for the first time since 2023. If your mortgage term renews in the next year or two, your payment could change. Know your renewal date and rate, and keep your emergency fund strong going into it.</p>
+<h2>Credits homeowners miss</h2>
+<ul><li><b>First-Time Home Buyers' Amount:</b> claim $10,000 on your tax return for the year you bought, worth about $1,400 to $1,500 off your federal tax. If you missed it, you can ask the CRA to adjust a past return, generally up to 10 years back.</li>
+<li><b>BC Home Owner Grant:</b> reduces your property tax. You apply every year, when your property tax is due.</li></ul>
+<h2>If you ever buy again</h2>
+<p>The minimum down payment is 5% of the first $500,000, plus 10% of the portion up to $1.5 million, and 20% above that. The FHSA and Home Buyers' Plan are only for first-time buyers under the four-year rule, so a second home is usually funded from your TFSA and the equity in your current one.</p>`,
+quiz:[
+ {q:"Your mortgage rate is 6.5%. Which is the guaranteed 6.5% return?", o:["Investing in VEQT","An extra mortgage payment","Neither"], a:1, why:"Prepaying saves interest at your mortgage rate, with no risk. Stocks might do better or worse."},
+ {q:"What's a common yearly budget for home maintenance?", o:["0.1% of the home's value","1% to 2% of the home's value","10% of the home's value"], a:1, why:"1–2% a year is the usual rule of thumb for upkeep and repairs."}
+], steps:["Find your mortgage rate, renewal date and prepayment limits","Check your return for the year you bought and confirm you claimed the Home Buyers' Amount","Run the Pay down or invest calculator"] },
+
+{ id:"protect", title:"Protecting what you're building", mins:10,
+body:`<p>Investing builds wealth slowly. Insurance and paperwork stop one bad event from undoing it.</p>
+<h2>Disability insurance</h2>
+<p>At your age, your ability to earn is your biggest asset: over $2 million at $76,000 a year for 30 years. Being unable to work for a long stretch is more likely than dying young. Check your workplace benefits for <b>long-term disability</b> coverage: how much of your pay it replaces, for how long, and whether benefits are taxable. If you have none, an individual policy is worth pricing.</p>
+<h2>Life insurance</h2>
+<p>You need it if someone depends on your income or would be stuck with the mortgage, like a partner or co-owner. <b>Term life insurance</b> is usually the simplest and cheapest way to cover that. Lender "mortgage life insurance" shrinks as you pay the mortgage down and pays the bank, not your family, so compare it with an independent term policy. If nobody depends on you, you may need little or none.</p>
+<h2>Home and tenant coverage</h2>
+<p>Your lender requires home insurance. Check that the coverage would actually rebuild at today's costs, and if you're in a strata, know what the strata policy covers and your share of its deductible.</p>
+<h2>Beneficiaries and a will</h2>
+<ul><li><b>TFSA:</b> name a <b>successor holder</b> (a spouse or common-law partner, who takes over the account tax-free) or a <b>beneficiary</b> (anyone else). Wealthsimple lets you add these in the account settings. In BC you can name them directly on the account.</li>
+<li><b>RRSP:</b> name a beneficiary when you open it.</li>
+<li><b>Will:</b> with a home, you should have one. It decides who gets your property and avoids a long, costly court process for your family.</li></ul>
+<div class="note prof"><b class="tag">Professor's note</b><p>None of this is exciting, and all of it takes an afternoon. Do it once, then review it when your life changes: a partner, a child, a new job, a new home.</p></div>`,
+quiz:[
+ {q:"Which is usually more likely for someone in their 30s?", o:["Dying before 65","A long period unable to work due to disability"], a:1, why:"That's why disability coverage matters so much while you're working."},
+ {q:"Who can be a TFSA successor holder?", o:["Anyone","A spouse or common-law partner","Only children"], a:1, why:"Only a spouse or common-law partner. Anyone else is named as a beneficiary."}
+], steps:["Check your workplace benefits for long-term disability coverage","Add a successor holder or beneficiary to your TFSA","Make or update your will"] },
+
+{ id:"retirement", title:"Retirement, demystified", mins:9,
+body:`<p>Retirement is likely 30+ years away for you, which makes it the goal where compounding helps most.</p>
+<h2>Where retirement income comes from</h2>
+<ul><li><b>CPP:</b> the Canada Pension Plan, based on your working years and earnings.</li>
+<li><b>OAS:</b> Old Age Security, available from 65 to most residents.</li>
+<li><b>Workplace pensions</b>, if you have one.</li>
+<li><b>Your own savings:</b> TFSA, RRSP and anything else.</li></ul>
+<p>CPP and OAS together typically replace only part of a middle income. Your savings fill the gap.</p>
+<h2>How much is enough?</h2>
+<p>A common rule of thumb: you can spend about 4% of your portfolio in your first year of retirement, adjusted for inflation after that, with a good chance it lasts. Flip it around and you need roughly <b>25 times</b> the yearly spending your savings must cover. Many planners use 3.5% to be safer.</p>
+<p>If you'd want $30,000 a year from savings (in today's dollars) on top of government benefits, that's roughly $750,000 in today's dollars.</p>
+<h2>The honest math</h2>
+<p>$200 a month alone probably won't get there. That's fine. You're early. The plan is to raise your contributions as your income grows, toward 10–15% of your gross pay over time. With a mortgage, the principal you pay down each month counts toward that.</p>`,
+quiz:[
+ {q:"Using the 4% rule, how much do you need to spend $40,000 a year from savings?", o:["$400,000","$1,000,000","$160,000"], a:1, why:"$40,000 × 25 = $1,000,000."},
+ {q:"What's a long-run savings target many planners suggest?", o:["1–2% of gross pay","10–15% of gross pay","50% of gross pay"], a:1, why:"10–15% over a career, including any employer contributions."}
+], steps:[] }
+]},
+
+{ id:"m6", title:"Growing and maintaining", blurb:"Raising your rate, taxes outside your TFSA and RRSP, and getting help.", lessons:[
+
+{ id:"grow-rate", title:"Raising your savings rate", mins:7,
+body:`<p>Early on, what you add matters more than what you earn. Doubling your contribution from $200 to $400 a month does more than any fund switch.</p>
+<h2>Painless ways to raise it</h2>
+<ul><li><b>Save half of every raise.</b> You still feel richer, and your rate climbs automatically.</li>
+<li><b>Bump your recurring amount every January</b> by $25 or $50.</li>
+<li><b>Invest windfalls:</b> tax refunds (especially from FHSA deductions), bonuses, gifts.</li>
+<li><b>When a debt is paid off</b>, redirect that payment to investing.</li></ul>
+<h2>Your review routine</h2>
+<p>Twice a year, about 20 minutes:</p>
+<ol><li>Is the emergency fund still at target?</li>
+<li>Are automatic contributions running? Can they go up?</li>
+<li>Is your mortgage renewal coming up? Check your rate, payment and prepayment room.</li>
+<li>Any new room? (TFSA every January, RRSP after you file taxes.)</li>
+<li>Did anything in your life change: job, partner, income?</li></ol>
+<p>With an all-in-one ETF, there's no rebalancing to do. That's the point.</p>`,
+quiz:[
+ {q:"Which usually helps more in your first decade of investing?", o:["Finding a fund with 0.05% lower fees","Doubling your monthly contribution"], a:1, why:"At small balances, contributions dominate."},
+ {q:"How often should you review your plan?", o:["Daily","About twice a year","Never"], a:1, why:"Often enough to keep it on track, rarely enough to avoid tinkering."}
+], steps:["Put two review dates in your calendar"] },
+
+{ id:"outside", title:"Investing outside registered accounts", mins:9,
+body:`<p>Once your TFSA and RRSP room is used up, you can invest in a regular, taxable account (Wealthsimple calls it a personal or non-registered account). That's years away for you, since you have over $56,000 of TFSA room, but here's how it works.</p>
+<h2>How investment income is taxed</h2>
+<ul><li><b>Capital gains:</b> when you sell for more than you paid, half the gain is added to your income and taxed at your rate. At 28.2%, a $1,000 gain costs about $141. You only pay when you sell.</li>
+<li><b>Canadian dividends:</b> get a dividend tax credit, so they're taxed less than wages.</li>
+<li><b>Interest and foreign dividends:</b> taxed fully as income, the least efficient.</li></ul>
+<h2>Record keeping</h2>
+<p>You have to track your <b>adjusted cost base</b> (ACB), the average price you paid including reinvested distributions, for every fund across all your taxable accounts. Free tools like adjustedcostbase.ca help. Watch the <b>superficial loss rule</b>: if you sell at a loss and buy the same thing back within 30 days, you can't claim the loss.</p>
+<h2>The order to fill accounts</h2>
+<p>For most people: TFSA and RRSP first, taxable account last. Inside registered accounts, none of this applies, which is the whole point of them.</p>`,
+quiz:[
+ {q:"At a 28.2% rate, roughly what tax do you owe on a $1,000 capital gain in a taxable account?", o:["$282","$141","$0"], a:1, why:"Half of the gain is taxable: $500 × 28.2% ≈ $141."},
+ {q:"When do you pay tax on a capital gain?", o:["Every year it grows","When you sell","Never"], a:1, why:"Gains are taxed when realized, that is, when you sell."}
+], steps:[] },
+
+{ id:"advice", title:"Getting help, and what to read next", mins:8,
+body:`<h2>When to talk to a professional</h2>
+<p>You can do this yourself. Consider paying for advice when your situation gets complex: buying a home, a big income change, starting a business, kids, inheritance.</p>
+<ul><li><b>Advice-only (fee-only) planners</b> charge by the hour or project and don't sell products. Best fit for DIY investors.</li>
+<li><b>Bank advisors</b> often sell their own higher-fee mutual funds. Ask how they're paid.</li>
+<li>Check anyone selling investments at <a href="https://www.aretheyregistered.ca" target="_blank" rel="noopener">aretheyregistered.ca</a>. Look for the CFP or QAFP designation for planners.</li></ul>
+<h2>Scam red flags</h2>
+<p>Guaranteed high returns, pressure to act fast, crypto "account managers" who contact you, requests to move money to a new platform, and anyone asking for your login. Real advisors never ask for your password.</p>
+<h2>Trustworthy places to keep learning</h2>
+<ul><li><a href="https://www.getsmarteraboutmoney.ca" target="_blank" rel="noopener">GetSmarterAboutMoney.ca</a>, from the Ontario Securities Commission</li>
+<li><a href="https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/tax-free-savings-account.html" target="_blank" rel="noopener">Canada.ca</a> for official TFSA, FHSA and RRSP rules</li>
+<li>Canadian Couch Potato (Dan Bortolotti): plain-English index investing for Canadians</li>
+<li>PWL Capital's Rational Reminder and Ben Felix's videos: evidence-based investing</li>
+<li>Books: <i>Millionaire Teacher</i> by Andrew Hallam and <i>The Wealthy Barber Returns</i> by David Chilton</li></ul>
+<div class="note"><b class="tag">You're done when…</b><p>You have an emergency fund, an FHSA, one diversified fund in your TFSA, automatic monthly contributions, and a written plan you'd follow in a crash. That's genuinely ahead of most people.</p></div>`,
+quiz:[
+ {q:"Which type of advisor has the fewest conflicts of interest?", o:["Commission-based","Advice-only, paid by the hour","One who calls you unprompted"], a:1, why:"They're paid for advice, not for selling products."},
+ {q:"Someone guarantees 20% a year and wants you to act today. What is it most likely?", o:["A great opportunity","A scam"], a:1, why:"Guarantees plus urgency are classic warning signs."}
+], steps:["Bookmark GetSmarterAboutMoney.ca"] }
+]}
+];
+
+const LESSONS = MODULES.flatMap(m=>m.lessons.map(l=>({...l, mod:m})));
+
+/* ============ GLOSSARY ============ */
+const GLOSS = [
+["All-in-one ETF","A single ETF holding several others to form a complete, automatically rebalanced portfolio. VEQT, XEQT, VGRO."],
+["Adjusted cost base (ACB)","Your average cost for an investment in a taxable account, used to calculate capital gains."],
+["Asset allocation","Your mix of stocks, bonds and cash. The biggest driver of risk and return."],
+["Book cost","What you paid for your investments, including reinvested dividends."],
+["Bond","A loan to a government or company that pays interest. Steadier than stocks, lower expected return."],
+["Capital gain","Profit from selling something for more than you paid. Not taxed inside a TFSA, FHSA or RRSP."],
+["CDIC","Canada Deposit Insurance Corporation. Protects eligible deposits at member institutions up to set limits. Doesn't cover ETFs."],
+["CIPF","Canadian Investor Protection Fund. Covers your investments if your brokerage fails, not if markets fall."],
+["Contribution room","How much you're allowed to deposit into a registered account. Check it in CRA My Account."],
+["CPP / OAS","Canada Pension Plan and Old Age Security, the main government retirement benefits."],
+["Dollar-cost averaging","Investing a fixed amount on a regular schedule regardless of price."],
+["Dividend","A share of company profits paid to shareholders. ETFs pass them on as distributions."],
+["DRIP","Dividend reinvestment plan. Automatically uses distributions to buy more units."],
+["Drawdown","A fall from a previous high. A 40% drawdown takes $10,000 to $6,000."],
+["Credit score","A number from Equifax and TransUnion that lenders use to set your rates. Built by paying on time and keeping balances low."],
+["Emerging markets","Faster-growing, less developed economies such as China, India, Taiwan and Brazil."],
+["ETF","Exchange-traded fund. A basket of investments that trades like a single stock."],
+["FHSA","First Home Savings Account. $8,000 a year, $40,000 lifetime; deductible going in, tax-free out for a first home."],
+["GIC","Guaranteed Investment Certificate. Locks money for a term at a set interest rate."],
+["Home bias","Holding more of your own country's stocks than its share of the world market."],
+["Home Buyers' Plan (HBP)","Lets first-time buyers withdraw up to $60,000 from an RRSP tax-free, repaid over 15 years."],
+["Index","A list of companies representing a market, like the S&P 500 or the S&P/TSX Composite."],
+["Index fund","A fund that buys everything in an index instead of picking stocks."],
+["Inflation","The general rise in prices over time, which reduces what each dollar buys."],
+["Marginal tax rate","The tax rate on your next dollar of income. Decides how much an RRSP or FHSA deduction saves you."],
+["Leverage","Using borrowed money to buy an asset. Magnifies both gains and losses."],
+["MER","Management expense ratio. The fund's annual cost, taken from its value."],
+["Rebalancing","Selling some of what grew and buying what lagged to return to your target mix."],
+["RRSP","Registered Retirement Savings Plan. Deductible contributions, taxed withdrawals."],
+["S&P 500","An index of about 500 large US companies. VFV tracks it."],
+["TFSA","Tax-Free Savings Account. $7,000 of new room in 2026; growth and withdrawals are tax-free."],
+["Successor holder","A spouse or common-law partner named to take over your TFSA tax-free if you die."],
+["Sinking fund","Money set aside monthly for a known yearly bill, like property tax."],
+["Volatility","How much and how fast an investment's price moves up and down."],
+["Withholding tax","Tax a foreign country keeps from dividends. The US keeps 15% of dividends paid to TFSAs."]
+];
+
+/* ============ STATE ============ */
+const KEY="giy-v1";
+let S={done:{},quiz:{},steps:{},plan:{},checks:{}};
+try{ const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} updateProgress(); }
+
+function updateProgress(){
+  const n=LESSONS.filter(l=>S.done[l.id]).length, p=Math.round(n/LESSONS.length*100);
+  document.getElementById("pbar").style.width=p+"%";
+  document.getElementById("ptxt").innerHTML=n+"/"+LESSONS.length+'<span class="lw"> lessons</span>';
+}
+
+/* ============ ROUTER ============ */
+const app=document.getElementById("app");
+function route(){
+  const h=(location.hash||"#home").slice(1);
+  let tab="home";
+  if(h==="plan"){tab="plan";renderPlan();}
+  else if(h==="tools"){tab="tools";renderTools();}
+  else if(h==="glossary"){tab="glossary";renderGloss();}
+  else if(h==="android"){tab="android";renderAndroid();}
+  else if(LESSONS.find(l=>l.id===h)){tab="course";renderLesson(h);}
+  else renderHome();
+  document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.tab===tab) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  curId = LESSONS.find(l=>l.id===h) ? h : null; curPage = tab; hideSel();
+  if(DR.open) drawDrawer();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+
+/* ============ HOME ============ */
+function renderHome(){
+  const next=LESSONS.find(l=>!S.done[l.id])||LESSONS[0];
+  app.innerHTML=`
+  <section class="hero">
+    <div>
+      <div class="eyebrow">A course built around your TFSA</div>
+      <h1>Learn to invest, then put it to work.</h1>
+      <p class="lede">Six short modules, written for a Canadian in their late 20s or early 30s with a Wealthsimple TFSA, about $7,500 invested, a home with a mortgage, and three goals: a safety net, retirement and long-term wealth.</p>
+      <p style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><a class="btn" href="#${next.id}">${S.done[LESSONS[0].id]?"Continue":"Start"}: ${next.title}</a><a class="btn ghost" href="#plan">See my plan</a></p>
+    </div>
+    <div class="ledger">
+      <h3>Your TFSA today</h3>
+      <table><tr><th>Fund</th><th>Book cost</th><th>Value</th></tr>
+      ${ME.holdings.map(h=>`<tr><td><b>${h.t}</b></td><td class="num">${money(h.book,2)}</td><td class="num">${money(h.value,2)}</td></tr>`).join("")}
+      <tr><td>Total</td><td class="num">${money(ME.book,2)}</td><td class="num">${money(ME.total,2)} <span class="up">+${money(ME.gain,0)}</span></td></tr></table>
+      <p class="fine" style="margin:10px 0 0">100% US stocks. No RRSP yet. A home with a mortgage. Contributions irregular. About $62,500 of TFSA room since you arrived in 2017. Income about $76,000, so roughly a 28% tax rate on your top dollars. Each of these gets a lesson.</p>
+    </div>
+  </section>
+  <h2>The course</h2>
+  <div class="modgrid">${MODULES.map((m,i)=>{const d=m.lessons.filter(l=>S.done[l.id]).length;return `<a class="modcard" href="#${m.lessons[0].id}"><span class="eyebrow">Module ${i+1} · ${m.lessons.length} lessons</span><strong>${m.title}</strong><span>${m.blurb}</span><div class="mini"><b style="width:${d/m.lessons.length*100}%"></b></div></a>`}).join("")}</div>
+  <div class="callout-phone"><p><b>Mostly on your phone?</b> The On Android page shows how to put this course on your home screen and how to do every task in the Wealthsimple app.</p><a class="btn" href="#android">On Android</a></div>
+  <h2>How to use this</h2>
+  <p style="max-width:65ch">Do one lesson a day. Each ends with a short quiz and a few real tasks to do in Wealthsimple or CRA My Account. Your progress, quiz answers and plan are saved in this browser. The <b>My plan</b> tab turns what you learn into a checklist, and <b>Calculators</b> lets you test the numbers yourself.</p>`;
+}
+
+/* ============ LESSON ============ */
+function renderLesson(id){
+  const i=LESSONS.findIndex(l=>l.id===id), L=LESSONS[i], prev=LESSONS[i-1], next=LESSONS[i+1];
+  const mi=MODULES.indexOf(L.mod);
+  const side=MODULES.map((m,k)=>`<details ${m===L.mod?"open":""}><summary>${m.title}<small>${m.lessons.filter(l=>S.done[l.id]).length}/${m.lessons.length}</small></summary><ol>${m.lessons.map(l=>`<li><a href="#${l.id}" class="${l.id===id?"on":""}"><span class="tick">${S.done[l.id]?"✓":""}</span>${l.title}</a></li>`).join("")}</ol></details>`).join("");
+  const qz=L.quiz.map((q,qi)=>{const k=id+":"+qi, ans=S.quiz[k];return `<div class="q" data-k="${k}" data-a="${q.a}"><p class="ask">${qi+1}. ${q.q}</p><div class="opts">${q.o.map((o,oi)=>`<button class="opt ${ans!==undefined?(oi===q.a?"right":(oi===ans?"wrong":"")):""}" data-oi="${oi}" ${ans!==undefined?"disabled":""}>${o}</button>`).join("")}</div><div class="why" ${ans===undefined?"hidden":""}>${ans===q.a?"<b>Correct.</b> ":"<b>Not quite.</b> "}${q.why}</div></div>`}).join("");
+  const st=L.steps.length?`<div class="block steps"><h2>Do this</h2>${L.steps.map((s,si)=>{const k=id+":"+si;return `<label><input type="checkbox" id="st-${k.replace(":","-")}" data-sk="${k}" ${S.steps[k]?"checked":""}><span>${s}</span></label>`}).join("")}</div>`:"";
+  app.innerHTML=`<div class="course">
+    <div><button class="btn ghost side-toggle" id="sideT">All lessons</button><aside class="side" id="side">${side}</aside></div>
+    <article class="lesson">
+      <div class="meta"><span>Module ${mi+1}: ${L.mod.title}</span><span>Lesson ${i+1} of ${LESSONS.length}</span><span>${L.mins} min</span></div>
+      <h1>${L.title}</h1>
+      <div class="content">${L.body}</div>
+      <section class="block notes-box"><h2>My notes</h2><p class="fine">Anything you want to remember. Saved on this phone as you type, and shown in Notes.</p><textarea id="lessonNote" aria-label="My notes for this lesson" placeholder="e.g. My mortgage renews in 2028, check prepayment limit">${esc(S.notes[id]||"")}</textarea></section>
+      <div class="block"><h2>Check yourself</h2>${qz}</div>
+      ${st}
+      <div class="pager">
+        ${prev?`<a class="btn ghost" href="#${prev.id}">← ${prev.title}</a>`:"<span></span>"}
+        <button class="btn" id="doneB">${S.done[id]?"Completed ✓":"Mark complete"}${next?" and continue →":""}</button>
+      </div>
+    </article></div>`;
+  setupPins(L);
+  document.getElementById("lessonNote").oninput=e=>{const t=e.target.value; if(t.trim()) S.notes[id]=t; else delete S.notes[id]; saveSoon(); badge(); if(DR.open) syncDrawerNote(id,t);};
+  document.getElementById("sideT").onclick=()=>document.getElementById("side").classList.toggle("open");
+  app.querySelectorAll(".q").forEach(qe=>qe.querySelectorAll("button.opt").forEach(b=>b.onclick=()=>{
+    const k=qe.dataset.k,a=+qe.dataset.a,oi=+b.dataset.oi; S.quiz[k]=oi; save();
+    qe.querySelectorAll("button.opt").forEach((x,xi)=>{x.disabled=true; if(xi===a)x.classList.add("right"); else if(xi===oi)x.classList.add("wrong");});
+    const w=qe.querySelector(".why"); w.hidden=false; w.innerHTML=(oi===a?"<b>Correct.</b> ":"<b>Not quite.</b> ")+L.quiz[+k.split(":")[1]].why;
+  }));
+  app.querySelectorAll("[data-sk]").forEach(c=>c.onchange=()=>{S.steps[c.dataset.sk]=c.checked;save();});
+  document.getElementById("doneB").onclick=()=>{S.done[id]=true;save(); if(next) location.hash=next.id; else location.hash="plan";};
+}
+
+/* ============ PLAN ============ */
+const ACTIONS=[
+ ["debts","List your debts and rates","Pay off anything above about 7–8% before investing more."],
+ ["ef","Start an emergency fund","Put one month of essential expenses in a high-interest account, then build to 3–6 months."],
+ ["hba","Check you claimed the Home Buyers' Amount","$10,000 on your return for the year you bought, worth about $1,400–1,500. The CRA can adjust past years."],
+ ["mort","Note your mortgage rate, renewal date and prepayment limits","You need them for the pay-down-or-invest decision."],
+ ["room","Check TFSA room in CRA My Account","So you never over-contribute."],
+ ["choose","Decide: consolidate, transition, or keep","Options A, B and C are in the Consolidating your TFSA lesson."],
+ ["rrsp","Open an RRSP once your emergency fund reaches 3 months","At 28.2%, each $1,000 you contribute cuts your tax by about $282."],
+ ["drip","Confirm dividend reinvestment is on","Applies to whichever fund you hold."],
+ ["auto","Set a recurring deposit and investment on payday","The habit that matters most."],
+ ["ips","Write your investing policy below","Your crash plan, in your own words."],
+ ["benef","Add a successor holder or beneficiary to your TFSA","Takes two minutes in the app."],
+ ["ltd","Check your disability coverage and make a will","Protects your income and your home."],
+ ["review","Put two review dates in your calendar","For example, the first weekend of May and November."],
+ ["raise","At every raise, add half of it to your contributions","Your rate climbs without feeling it."]
+];
+const MIX=[
+ {n:"Your TFSA now",v:[100,0,0,0]},
+ {n:"VEQT",v:[45.5,29.7,17.6,7.2]},
+ {n:"XEQT",v:[45,25,25,5]}
+];
+const MIXL=["US","Canada","Developed intl","Emerging"];
+function renderPlan(){
+  const P=S.plan;
+  const ips=P.ips??`My goals
+- Emergency fund: ___ months of expenses (about $____) in a high-interest account.
+- Home: mortgage at ___% renewing ______. Home repair fund: $_____.
+- Retirement and long-term wealth: my TFSA and RRSP, invested in ____.
+
+My contributions
+- $___ every payday, automatically. I raise it every January and with every raise.
+
+What I hold and why
+- One globally diversified, low-cost ETF for long-term money.
+- Money I may need within 3 years stays in cash, not stocks.
+
+In a crash
+- I will not sell long-term investments.
+- I will keep my automatic contributions running.
+- I check my balance at most once a month.
+
+I review this plan twice a year: ______ and ______.`;
+  const done=ACTIONS.filter(a=>S.checks[a[0]]).length;
+  app.innerHTML=`
+  <div class="eyebrow">My plan</div><h1>From learning to doing</h1>
+  <p class="lede">${done} of ${ACTIONS.length} actions done. Everything here saves in this browser.</p>
+  <section class="panel" style="margin-bottom:18px"><h2>Your situation at a glance</h2>
+    <div class="out" style="margin-top:0">
+      <div><small>TFSA room since arriving in 2017</small><b>about $62,500</b></div>
+      <div><small>TFSA room left (before your deposits)</small><b>about $56,600+</b></div>
+      <div><small>Top tax rate at $76,000 in BC</small><b>about 28.2%</b></div>
+      <div><small>New RRSP room each year</small><b>about $13,680</b></div>
+      <div><small>FHSA</small><b>Not eligible while you own your home</b></div>
+    </div>
+    <p class="fine">TFSA: born 1996, resident from October 2017, so room counts from 2017 ($5,500), not 2014. "Room left" assumes about $5,900 deposited and no withdrawals. Tax rate assumes you live in BC: 20.5% federal plus 7.7% provincial for income between about $58,500 and $100,700. Confirm both in CRA My Account and on your Notice of Assessment.</p>
+  </section>
+  <div class="grid2">
+    <section class="panel"><h2>Action checklist</h2>
+      <ol class="check">${ACTIONS.map(a=>`<li><label><input type="checkbox" id="ck-${a[0]}" data-ck="${a[0]}" ${S.checks[a[0]]?"checked":""}><span><b>${a[1]}</b><small>${a[2]}</small></span></label></li>`).join("")}</ol>
+    </section>
+    <section class="panel"><h2>My numbers</h2>
+      <div class="form">
+        <label>Essential expenses / month<input id="p-exp" type="number" min="0" step="50" value="${P.exp??""}" placeholder="e.g. 2500"></label>
+        <label>Emergency fund saved<input id="p-ef" type="number" min="0" step="50" value="${P.ef??""}" placeholder="0"></label>
+        <label>Monthly to invest<input id="p-mo" type="number" min="0" step="25" value="${P.mo??200}"></label>
+        <label>Yearly income<input id="p-inc" type="number" min="0" step="1000" value="${P.inc??76000}"></label>
+        <label>Top tax rate (%)<input id="p-mr" type="number" min="0" max="60" step="0.1" value="${P.mr??28.2}"></label>
+        <label>Total TFSA deposits so far<input id="p-dep" type="number" min="0" step="50" value="${P.dep??""}" placeholder="from Wealthsimple"></label>
+        <label>My choice<select id="p-opt"><option value="">Not decided</option><option ${P.opt==="A"?"selected":""} value="A">A: consolidate</option><option ${P.opt==="B"?"selected":""} value="B">B: gradual transition</option><option ${P.opt==="C"?"selected":""} value="C">C: keep US funds</option></select></label>
+        <label>Mortgage rate (%)<input id="p-mrt" type="number" min="0" max="20" step="0.05" value="${P.mrt??""}" placeholder="e.g. 4.5"></label>
+      </div>
+      <div class="out" id="planOut"></div>
+    </section>
+    <section class="panel"><h2>Where your money is, by region</h2>
+      <div class="stack">${MIX.map(m=>`<div class="row"><span>${m.n}</span><div class="seg">${m.v.map((x,k)=>x?`<span style="width:${x}%;background:var(--c${k+1})" title="${MIXL[k]} ${x}%"></span>`:"").join("")}</div></div>`).join("")}</div>
+      <div class="legend">${MIXL.map((l,k)=>`<span><i style="background:var(--c${k+1})"></i>${l}</span>`).join("")}</div>
+      <p class="fine">VEQT as of September 30, 2026. XEQT approximate target weights.</p>
+    </section>
+    <section class="panel"><h2>A second opinion on the ChatGPT plan</h2>
+      <p>The plan you shared is sound on the big things: a single global ETF, regular contributions, ignoring short-term swings, reviewing twice a year. Four things I'd add or correct:</p>
+      <ol>
+        <li><b>Fees are now a tie.</b> Vanguard cut VEQT's management fee to 0.17% in November 2025, the same as XEQT. Choose on allocation or preference, not cost.</li>
+        <li><b>It skips the emergency fund.</b> That should come before or alongside new investing.</li>
+        <li><b>It skips the RRSP.</b> At your income, each $1,000 contributed comes back as about $282 at tax time.</li>
+        <li><b>It ignores your mortgage.</b> Extra payments are a guaranteed return at your mortgage rate, and homeowners need a bigger emergency cushion for repairs.</li>
+      </ol>
+    </section>
+  </div>
+  <section class="panel" style="margin-top:18px"><h2>My investing policy</h2>
+    <p class="fine">Fill in the blanks. Reread it before you make any change, and especially during a crash.</p>
+    <textarea id="p-ips" aria-label="My investing policy">${ips.replace(/</g,"&lt;")}</textarea>
+  </section>
+  <section class="panel" style="margin-top:18px"><h2>Sources</h2>
+    <ul class="sources">
+      <li><a href="https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/tax-free-savings-account.html" target="_blank" rel="noopener">Canada Revenue Agency: TFSA</a></li>
+      <li><a href="https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/first-home-savings-account.html" target="_blank" rel="noopener">Canada Revenue Agency: FHSA</a></li>
+      <li><a href="https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/what-home-buyers-plan.html" target="_blank" rel="noopener">Canada Revenue Agency: Home Buyers' Plan</a></li>
+      <li><a href="https://www.vanguard.ca/en/advisor/products/products-group/etfs/VEQT" target="_blank" rel="noopener">Vanguard Canada: VEQT</a></li>
+      <li><a href="https://www.blackrock.com/gls-download/literature/fact-sheet/xeqt-ishares-core-equity-etf-portfolio-fund-fact-sheet-en-ca.pdf" target="_blank" rel="noopener">iShares: XEQT fact sheet</a></li>
+      <li><a href="https://wealthsimple.com/pricing" target="_blank" rel="noopener">Wealthsimple: plans and pricing</a></li>
+      <li><a href="https://www.desjardins.com/en/savings-investment/economic-studies/canada-boc-october-28-2026.html" target="_blank" rel="noopener">Desjardins: Bank of Canada decision, October 28, 2026</a></li>
+      <li><a href="https://www.wealthsimple.com/en-ca/learn/fhsa-faqs" target="_blank" rel="noopener">Wealthsimple: FHSA FAQs</a></li>
+    </ul>
+  </section>`;
+  app.querySelectorAll("[data-ck]").forEach(c=>c.onchange=()=>{S.checks[c.dataset.ck]=c.checked;save();renderPlanOut();});
+  ["exp","ef","mo","inc","mr","dep","opt","mrt"].forEach(k=>{const e=document.getElementById("p-"+k);e.oninput=e.onchange=()=>{S.plan[k]=e.value;save();renderPlanOut();};});
+  document.getElementById("p-ips").oninput=e=>{S.plan.ips=e.target.value;save();};
+  renderPlanOut();
+}
+function renderPlanOut(){
+  const P=S.plan, exp=+P.exp||0, ef=+P.ef||0, mo=+(P.mo??200)||0;
+  const t3=exp*3, t6=exp*6;
+  const efMo= exp? (t3>ef? Math.ceil((t3-ef)/Math.max(mo/2,1)) : 0) : null;
+  const out=[];
+  out.push(["Emergency target (3–6 mo)", exp?money(t3)+"–"+money(t6):"enter expenses"]);
+  out.push(["Still to save (3 mo)", exp?money(Math.max(t3-ef,0)):"–"]);
+  out.push(["Months to 3-mo fund at half your monthly", efMo===null?"–":(efMo===0?"done":efMo+" months")]);
+  const inc=+(P.inc??76000)||0, mr=+(P.mr??28.2)||0;
+  out.push(["Invested per year", money(mo*12)]);
+  out.push(["Savings rate (of gross pay)", inc? (mo*12/inc*100).toFixed(1)+"%" : "–"]);
+  out.push(["10% of gross pay, monthly", inc? money(inc*0.10/12) : "–"]);
+  out.push(["Tax refund if it all went to an RRSP", money(mo*12*mr/100)]);
+  if(P.mrt){ const r=+P.mrt; out.push(["Extra mortgage money", r<4?"investing likely wins":(r<=6?"close call, split it":"prepaying is strong")]); }
+  document.getElementById("planOut").innerHTML=out.map(o=>`<div><small>${o[0]}</small><b>${o[1]}</b></div>`).join("");
+}
+
+/* ============ TOOLS ============ */
+const TFSA_LIM={2009:5000,2010:5000,2011:5000,2012:5000,2013:5500,2014:5500,2015:10000,2016:5500,2017:5500,2018:5500,2019:6000,2020:6000,2021:6000,2022:6000,2023:6500,2024:7000,2025:7000,2026:7000};
+function renderTools(){
+  const mo=+S.plan.mo||200;
+  app.innerHTML=`<div class="eyebrow">Calculators</div><h1>Test the numbers yourself</h1>
+  <p class="lede">Every result is an estimate built on the assumptions you enter. Change them and watch what moves.</p>
+  <div class="grid2">
+  <section class="panel" style="grid-column:1/-1"><h2>Growth calculator</h2>
+    <div class="form">
+      <label>Starting balance<input id="g-s" type="number" value="7508" step="100"></label>
+      <label>Monthly contribution<input id="g-m" type="number" value="${mo}" step="25"></label>
+      <label>Years<input id="g-y" type="number" value="30" min="1" max="50"></label>
+      <label>Yearly return before fees (%)<input id="g-r" type="number" value="6" step="0.5"></label>
+      <label>Fund MER (%)<input id="g-f" type="number" value="0.20" step="0.05"></label>
+      <label>Inflation (%)<input id="g-i" type="number" value="2.5" step="0.25"></label>
+    </div>
+    <div class="out" id="g-out"></div>
+    <svg class="chart" id="g-chart" viewBox="0 0 720 260" role="img" aria-label="Growth over time"></svg>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Total balance</span><span><i style="background:var(--gold)"></i>Money you put in</span></div>
+  </section>
+  <section class="panel"><h2>TFSA room estimator</h2>
+    <div class="form">
+      <label>Birth year<input id="t-b" type="number" value="1996" min="1940" max="2008"></label>
+      <label>Year you became a Canadian resident<input id="t-r" type="number" value="2017" min="1900" max="2026"></label>
+      <label>Total deposits ever<input id="t-c" type="number" value="${S.plan.dep||5900}" step="100"></label>
+      <label>Withdrawals before 2026<input id="t-w" type="number" value="0" step="100"></label>
+    </div>
+    <div class="out" id="t-out"></div>
+    <p class="fine">Room builds from the later of the year you turned 18 and the year you became a resident. The CRA gives the full limit for the year you arrive. CRA My Account is the official number, but it can lag your most recent deposits.</p>
+  </section>
+  <section class="panel"><h2>Crash test</h2>
+    <div class="form">
+      <label>Balance<input id="c-b" type="number" value="7508" step="100"></label>
+      <label>Drop: <span id="c-pl">40%</span><input id="c-d" type="range" min="10" max="55" value="40"></label>
+    </div>
+    <div class="out" id="c-out"></div>
+    <p class="fine">For reference: about 50% in 2008–09, about 34% in early 2020, about 25% in 2022. All recovered, some faster than others.</p>
+  </section>
+  <section class="panel" style="grid-column:1/-1"><h2>Debt payoff</h2>
+    <div class="form">
+      <label>Balance<input id="d-b" type="number" value="3000" step="100"></label>
+      <label>Interest rate (%)<input id="d-r" type="number" value="20.99" step="0.5"></label>
+      <label>Monthly payment<input id="d-p" type="number" value="150" step="10"></label>
+    </div>
+    <div class="out" id="d-out"></div>
+    <p class="fine">Example values. Assumes no new charges and interest charged monthly.</p>
+  </section>
+  <section class="panel" style="grid-column:1/-1"><h2>Pay down or invest</h2>
+    <div class="form">
+      <label>Extra money per month<input id="h-m" type="number" value="100" step="25"></label>
+      <label>Mortgage rate (%)<input id="h-mr" type="number" value="${S.plan.mrt||4.5}" step="0.05"></label>
+      <label>Years<input id="h-y" type="number" value="10" min="1" max="30"></label>
+      <label>Investment return before fees (%)<input id="h-r" type="number" value="6" step="0.5"></label>
+      <label>Fund MER (%)<input id="h-f" type="number" value="0.20" step="0.05"></label>
+    </div>
+    <div class="out" id="h-out"></div>
+    <p class="fine">Prepaying is valued as the interest you no longer pay, which works like a guaranteed, tax-free return at your mortgage rate. The investing figure assumes a TFSA and a steady return; real returns vary, and can be negative over 10 years. Stay inside your mortgage's prepayment limits to avoid penalties.</p>
+  </section>
+  </div>`;
+  const ids=["g-s","g-m","g-y","g-r","g-f","g-i","t-b","t-r","t-c","t-w","c-b","c-d","h-m","h-mr","h-y","h-r","h-f","d-b","d-r","d-p"];
+  ids.forEach(i=>{const e=document.getElementById(i); e.oninput=e.onchange=calcAll;});
+  calcAll();
+}
+const v=id=>+document.getElementById(id).value||0;
+function calcAll(){
+  /* growth */
+  const s=v("g-s"),m=v("g-m"),y=Math.min(Math.max(Math.round(v("g-y")),1),50),r=(v("g-r")-v("g-f"))/100,inf=v("g-i")/100;
+  const mr=Math.pow(1+r,1/12)-1; let bal=s,put=s; const pts=[[0,s,s]];
+  for(let k=1;k<=y*12;k++){bal=bal*(1+mr)+m;put+=m; if(k%12===0) pts.push([k/12,bal,put]);}
+  const real=bal/Math.pow(1+inf,y);
+  document.getElementById("g-out").innerHTML=[["Balance after "+y+" years",money(bal)],["In today's dollars",money(real)],["You put in",money(put)],["Growth",money(bal-put)]].map(o=>`<div><small>${o[0]}</small><b>${o[1]}</b></div>`).join("");
+  drawChart(pts);
+  /* tfsa */
+  const b=v("t-b"),start=Math.max(2009,b+18,v("t-r")); let cum=0; for(let yr=start;yr<=2026;yr++) cum+=TFSA_LIM[yr]||0;
+  const room=cum-v("t-c")+v("t-w");
+  document.getElementById("t-out").innerHTML=[["Cumulative room since "+(start>2026?"–":start),money(cum)],["Estimated room left",money(room)]].map(o=>`<div><small>${o[0]}</small><b>${o[1]}</b></div>`).join("")+(room<0?`<div style="grid-column:1/-1;background:var(--warn-soft)"><small>Warning</small><b>Possible over-contribution. Check CRA My Account.</b></div>`:"");
+  /* crash */
+  const cb=v("c-b"),d=v("c-d")/100; document.getElementById("c-pl").textContent=Math.round(d*100)+"%";
+  const after=cb*(1-d), need=1/(1-d)-1, mo=+S.plan.mo||200;
+  document.getElementById("c-out").innerHTML=[["Value after drop",money(after)],["Paper loss",money(cb-after)],["Gain needed to recover",Math.round(need*100)+"%"],["Your units bought per $"+mo+" vs before",(1/(1-d)).toFixed(2)+"×"]].map(o=>`<div><small>${o[0]}</small><b>${o[1]}</b></div>`).join("");
+  /* debt */
+  { let db=v("d-b"); const dr=v("d-r")/100/12, dp=v("d-p"); let mths=0, intr=0;
+    while(db>0.005 && mths<1200){ const it=db*dr; intr+=it; db=db+it-dp; mths++; if(dp<=it){mths=Infinity;break;} }
+    const done=isFinite(mths)&&mths<1200;
+    const yrs=done? (mths>=12? Math.floor(mths/12)+" yr "+(mths%12)+" mo" : mths+" months") : "never at this payment";
+    document.getElementById("d-out").innerHTML=[["Time to pay off",yrs],["Total interest",done?money(intr):"–"],["Interest per month right now",money(v("d-b")*dr)]].map(o=>`<div><small>${o[0]}</small><b>${o[1]}</b></div>`).join("");
+  }
+  /* pay down vs invest */
+  const hm=v("h-m"), hy=Math.max(1,Math.round(v("h-y")))*12;
+  const fvm=(rate)=>{const i=Math.pow(1+rate/100,1/12)-1; return i? hm*(Math.pow(1+i,hy)-1)/i : hm*hy;};
+  const inv=fvm(v("h-r")-v("h-f")), pre=fvm(v("h-mr")), diff=inv-pre;
+  document.getElementById("h-out").innerHTML=[["You'd put in",money(hm*hy)],["Value of prepaying",money(pre)],["Value of investing",money(inv)],[diff>=0?"Investing ahead by":"Prepaying ahead by",money(Math.abs(diff))]].map(o=>`<div><small>${o[0]}</small><b>${o[1]}</b></div>`).join("");
+}
+function drawChart(pts){
+  const W=720,H=260,L=64,R=14,T=14,B=30, maxY=Math.max(...pts.map(p=>p[1]))||1, maxX=pts[pts.length-1][0]||1;
+  const step=niceStep(maxY/4), top=Math.ceil(maxY/step)*step;
+  const x=t=>L+(W-L-R)*t/maxX, y=val=>T+(H-T-B)*(1-val/top);
+  let g="";
+  for(let k=0;k<=top+1e-6;k+=step){g+=`<line x1="${L}" x2="${W-R}" y1="${y(k)}" y2="${y(k)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(k)+4}" text-anchor="end">${k>=1e6?"$"+(k/1e6).toFixed(k%1e6?1:0)+"M":"$"+Math.round(k/1000)+"k"}</text>`;}
+  const xs=maxX<=10?1:(maxX<=25?5:10);
+  for(let t=0;t<=maxX;t+=xs) g+=`<text x="${x(t)}" y="${H-10}" text-anchor="middle">${t}y</text>`;
+  const line=i=>pts.map((p,k)=>(k?"L":"M")+x(p[0]).toFixed(1)+","+y(p[i]).toFixed(1)).join("");
+  const area=line(1)+`L${x(maxX)},${y(0)}L${x(0)},${y(0)}Z`;
+  const last=pts[pts.length-1];
+  g+=`<path d="${area}" fill="var(--accent-soft)" stroke="none"/><path d="${line(2)}" fill="none" stroke="var(--gold)" stroke-width="2.5"/><path d="${line(1)}" fill="none" stroke="var(--accent)" stroke-width="2.5"/><circle cx="${x(last[0])}" cy="${y(last[1])}" r="4.5" fill="var(--accent)"/>`;
+  document.getElementById("g-chart").innerHTML=g;
+}
+function niceStep(raw){const p=Math.pow(10,Math.floor(Math.log10(raw||1)));const f=raw/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;}
+
+/* ============ GLOSSARY ============ */
+function renderGloss(){
+  app.innerHTML=`<div class="eyebrow">Glossary</div><h1>Words you'll see</h1>
+  <input class="search form" id="gq" type="search" placeholder="Search terms" aria-label="Search glossary" style="font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:100%">
+  <dl class="gloss" id="gl"></dl>`;
+  const draw=q=>document.getElementById("gl").innerHTML=GLOSS.filter(g=>(g[0]+g[1]).toLowerCase().includes(q)).map(g=>`<div><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join("")||"<p>No matches.</p>";
+  document.getElementById("gq").oninput=e=>draw(e.target.value.toLowerCase().trim()); draw("");
+}
+
+/* ============ ANDROID ============ */
+function renderAndroid(){
+  const isFile=location.protocol==="file:";
+  app.innerHTML=`<div class="eyebrow">On Android</div><h1>Doing all of this from your phone</h1>
+  <p class="lede">Everything in this course works on a phone. Tap a heading to open the steps. App labels change from time to time, so if a button has a slightly different name, look for the closest match.</p>
+  ${isFile?`<div class="note warn"><b class="tag">You opened this as a file</b><p>That works, but Chrome may not keep your progress and plan between visits. Put it online with GitHub Pages (first section below) so it saves reliably.</p></div>`:""}
+
+  <h2>1. Put this course on your home screen</h2>
+  <details class="how" open><summary>Host it on GitHub Pages (recommended)</summary><div>
+    <p>Same as your coding course. Hosting gives you a real link, so Chrome reliably saves your progress.</p>
+    <ol>
+      <li>Save <span class="kbd">index.html</span> from the chat to your phone (tap it, then <b>Download</b>). Check the name is exactly <span class="kbd">index.html</span>.</li>
+      <li>In Chrome, go to github.com and sign in. Tap <span class="kbd">⋮</span> and tick <b>Desktop site</b> so the upload button shows.</li>
+      <li>Make a new repository, for example <span class="kbd">investing</span>. Tap <b>Add file</b> → <b>Upload files</b>, choose <span class="kbd">index.html</span> from Downloads, then <b>Commit changes</b>.</li>
+      <li>Open <b>Settings</b> → <b>Pages</b>. Under Build and deployment pick <b>Deploy from a branch</b>, then <b>main</b> and <b>/ (root)</b>, and <b>Save</b>.</li>
+      <li>Wait a couple of minutes. Your course is at <span class="kbd">your-name.github.io/investing</span>. Untick <b>Desktop site</b> again.</li>
+    </ol>
+  </div></details>
+  <details class="how"><summary>Add it to your home screen</summary><div>
+    <ol>
+      <li>Open your course link in Chrome.</li>
+      <li>Tap <span class="kbd">⋮</span> (top right), then <b>Add to home screen</b> (on some phones it says <b>Install app</b>).</li>
+      <li>Keep the name "Grow It Yourself" and tap <b>Add</b>. It now opens like an app.</li>
+    </ol>
+    <p class="fine">Your progress lives in Chrome on this phone. Clearing Chrome's site data or switching phones resets it. Copy your investing policy text somewhere safe, like Google Keep, once you've written it.</p>
+  </div></details>
+  <details class="how"><summary>Getting around on a small screen</summary><div>
+    <ul>
+      <li>The tabs at the top scroll sideways: Start, Course, My plan, Calculators, Glossary, On Android.</li>
+      <li>In a lesson, tap <b>All lessons</b> to jump around the course.</li>
+      <li>Tap <b>Pin</b> next to any heading or box to save it. Or long-press to select any text, and tap <b>Pin selection</b> at the bottom of the screen.</li>
+      <li>Each lesson has a <b>My notes</b> box. Tap <b>Notes</b> at the top to see, search and copy everything you've saved.</li>
+      <li>Rotate your phone for wide tables, or swipe them sideways.</li>
+    </ul>
+  </div></details>
+
+  <h2>2. Wealthsimple app tasks</h2>
+  <details class="how"><summary>Find your total TFSA deposits</summary><div>
+    <ol>
+      <li>Open the app and tap your <b>TFSA</b>.</li>
+      <li>Look for the account's <b>Activity</b> list and filter to deposits, or check the account details for total contributions.</li>
+      <li>Add up deposits (not dividends, not book cost) and enter the total on <a href="#plan">My plan</a>.</li>
+    </ol>
+  </div></details>
+  <details class="how"><summary>Open an RRSP</summary><div>
+    <ol>
+      <li>From the home screen, look for <b>Add account</b> or the <b>+</b> button.</li>
+      <li>Choose the <b>self-directed RRSP</b> (you pick the investments).</li>
+      <li>Fund it and buy the same fund you hold in your TFSA, so everything stays simple.</li>
+      <li>Wealthsimple sends your RRSP contribution receipts in the app; your tax software can import them.</li>
+    </ol>
+    <p class="fine">You can't open an FHSA while you live in a home you own, so it isn't listed here.</p>
+  </div></details>
+  <details class="how"><summary>Switch VUN and VFV into one fund</summary><div>
+    <ol>
+      <li>Do it on a weekday between about <b>6:45 a.m. and 12:45 p.m.</b> your time (Pacific), while the Toronto market is open.</li>
+      <li>Open your TFSA, tap <b>VFV</b>, tap <b>Sell</b>, choose to sell <b>all</b> units, review and confirm.</li>
+      <li>Do the same for <b>VUN</b>.</li>
+      <li>When both orders show as filled, search <b>VEQT</b> (or XEQT), tap <b>Buy</b>, enter the full cash amount in dollars, and confirm.</li>
+      <li>Don't withdraw the cash at any point. It stays in the TFSA the whole time.</li>
+    </ol>
+  </div></details>
+  <details class="how"><summary>Set up a recurring deposit</summary><div>
+    <ol>
+      <li>Tap <b>Move money</b> (or Deposit) and choose your bank as the source and your TFSA (or FHSA) as the destination.</li>
+      <li>Enter the amount and change the frequency from one-time to <b>weekly</b>, <b>every two weeks</b> or <b>monthly</b>.</li>
+      <li>Pick the day after your payday.</li>
+    </ol>
+  </div></details>
+  <details class="how"><summary>Set up a recurring investment</summary><div>
+    <ol>
+      <li>Open the fund's page (for example VEQT) from inside the account you want it in.</li>
+      <li>Tap <b>Buy</b>, then look for the option to make it <b>recurring</b>.</li>
+      <li>Choose the amount and the same frequency as your deposit, a day or two later so the cash has arrived.</li>
+      <li>Check the account it's buying into is the right one (TFSA vs FHSA).</li>
+    </ol>
+  </div></details>
+  <details class="how"><summary>Turn on dividend reinvestment (DRIP)</summary><div>
+    <ol>
+      <li>Open your profile or account settings and look for <b>Dividend reinvestment</b>.</li>
+      <li>Turn it on for your TFSA and FHSA.</li>
+    </ol>
+    <p class="fine">Wealthsimple's help article: <a href="https://help.wealthsimple.com/hc/en-ca/articles/34484761789723-Turn-dividend-reinvestments-on-or-off" target="_blank" rel="noopener">Turn dividend reinvestments on or off</a>.</p>
+  </div></details>
+
+  <h2>3. CRA My Account</h2>
+  <details class="how"><summary>Check your TFSA and RRSP room on your phone</summary><div>
+    <ol>
+      <li>In Chrome, go to <b>canada.ca</b> and search "CRA My Account".</li>
+      <li>Sign in with your bank sign-in partner or CRA user ID.</li>
+      <li>Open the <b>RRSP, TFSA, FHSA</b> section to see your room. Note that it can lag recent deposits by weeks.</li>
+    </ol>
+  </div></details>
+
+  <h2>4. Phone habits that protect your money</h2>
+  <div class="panel">
+    <ul style="margin:0;padding-left:1.2em">
+      <li><b>Turn off price alerts</b> in the Wealthsimple app's notification settings. Keep alerts for deposits and trades only.</li>
+      <li><b>Move the app off your home screen</b> into a folder. Fewer glances, fewer impulse trades.</li>
+      <li><b>Check monthly, not daily.</b> Your plan runs itself.</li>
+      <li><b>Lock it down:</b> turn on two-step verification and fingerprint unlock in the app.</li>
+      <li><b>Ignore unsolicited messages</b> about your account. Open the app yourself instead of tapping links in texts or emails.</li>
+    </ul>
+  </div>
+  <p class="fine" style="margin-top:16px">More help: <a href="https://help.wealthsimple.com" target="_blank" rel="noopener">Wealthsimple Help Centre</a>.</p>`;
+}
+
+
+/* ============ NOTES & PINS ============ */
+S.pins=Array.isArray(S.pins)?S.pins:[]; S.notes=(S.notes&&typeof S.notes==="object")?S.notes:{};
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+let DR={open:false,mode:"lesson",q:""}, curId=null, curPage="home", saveT=null, lastSel="";
+const PAGE_NAMES={home:"Start",plan:"My plan",tools:"Calculators",glossary:"Glossary",android:"On Android"};
+const drawer=document.getElementById("drawer");
+function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,300);}
+function pinCount(){return S.pins.length+Object.values(S.notes).filter(n=>n&&n.trim()).length;}
+function badge(){const c=document.getElementById("nCount"),n=pinCount();c.textContent=n;c.hidden=!n;}
+function flash(msg){const f=document.createElement("div");f.className="flash";f.textContent=msg;document.body.appendChild(f);setTimeout(()=>f.remove(),2200);}
+function addPin(p){p.id="p"+Date.now()+Math.floor(Math.random()*1000);p.note="";p.at=Date.now();S.pins.unshift(p);save();badge();refreshPinBtns();if(DR.open)drawDrawer();flash("Pinned. Tap Notes to see it.");}
+function removePin(id){S.pins=S.pins.filter(p=>p.id!==id);save();badge();refreshPinBtns();if(DR.open)drawDrawer();}
+function sectionNodes(h){const out=[h];let n=h.nextElementSibling;while(n&&n.tagName!=="H2"){out.push(n);n=n.nextElementSibling;}return out;}
+function clean(nodes){const w=document.createElement("div");nodes.forEach(n=>w.append(n.cloneNode(true)));w.querySelectorAll(".pin-sec").forEach(b=>b.remove());return {html:w.innerHTML,text:w.textContent.replace(/\s+/g," ").trim()};}
+function setupPins(L){
+  const c=app.querySelector(".content"); let hi=0, ni=0;
+  c.querySelectorAll(":scope > h2, :scope > .note").forEach(el=>{
+    const isH=el.tagName==="H2", key=L.id+":"+(isH?"h"+(hi++):"n"+(ni++));
+    const b=document.createElement("button"); b.type="button"; b.className="pin-sec"; b.dataset.key=key;
+    b.setAttribute("aria-label", isH?"Pin this section":"Pin this box");
+    if(isH) el.appendChild(b); else el.prepend(b);
+    b.onclick=()=>{
+      const ex=S.pins.find(p=>p.key===key); if(ex){removePin(ex.id);return;}
+      const nodes=isH?sectionNodes(el):[el], cl=clean(nodes);
+      const title=isH?el.firstChild.textContent.trim():((el.querySelector("b.tag")||{}).textContent||"Note");
+      addPin({key,lid:L.id,kind:isH?"section":"box",title,html:cl.html,text:cl.text});
+    };
+  });
+  refreshPinBtns();
+}
+function refreshPinBtns(){document.querySelectorAll(".pin-sec").forEach(b=>{const on=!!S.pins.find(p=>p.key===b.dataset.key);b.classList.toggle("on",on);b.textContent=on?"Pinned":"Pin";});}
+/* text selection */
+const selbar=document.getElementById("selbar");
+function hideSel(){selbar.hidden=true;}
+let selT=null;
+document.addEventListener("selectionchange",()=>{clearTimeout(selT);selT=setTimeout(()=>{
+  const sel=window.getSelection(), t=sel?String(sel).trim():"";
+  const node=sel&&sel.anchorNode, el=node&&(node.nodeType===1?node:node.parentElement);
+  const ok=t.length>2&&el&&el.closest("#app")&&!el.closest("textarea,input");
+  if(ok){lastSel=t;selbar.hidden=false;} else {selT=setTimeout(hideSel,600);}
+},150);});
+function pinSelection(){
+  if(!lastSel) return; const L=curId?LESSONS.find(l=>l.id===curId):null;
+  addPin({kind:"text",lid:L?L.id:null,page:curPage,title:L?L.title:(PAGE_NAMES[curPage]||"Page"),text:lastSel});
+  lastSel=""; hideSel(); try{window.getSelection().removeAllRanges();}catch(e){}
+}
+document.getElementById("selPin").addEventListener("pointerdown",e=>{e.preventDefault();pinSelection();});
+document.getElementById("selX").addEventListener("pointerdown",e=>{e.preventDefault();lastSel="";hideSel();try{window.getSelection().removeAllRanges();}catch(e2){}});
+/* drawer */
+function matches(q,parts){return !q||parts.join(" ").toLowerCase().includes(q);}
+function pinCard(p,showFrom){
+  const L=p.lid?LESSONS.find(l=>l.id===p.lid):null;
+  const kind={section:"Section",box:"Box",text:"Highlight"}[p.kind]||"Pin";
+  const body=p.kind==="text"?'<blockquote>'+esc(p.text).replace(/\n/g,"<br>")+'</blockquote>':'<div class="pin-html content">'+p.html+'</div>';
+  const from=showFrom&&!L?'<p class="fine" style="margin:0">From '+esc(PAGE_NAMES[p.page]||"a page")+'</p>':'';
+  return '<article class="pin-card"><header><span class="pin-kind">'+kind+'</span><b>'+esc(p.title||"")+'</b></header>'+from+body+
+   '<textarea data-pnote="'+p.id+'" aria-label="Note on this pin" placeholder="Add a note…">'+esc(p.note||"")+'</textarea>'+
+   '<div class="pin-actions">'+(L&&L.id!==curId?'<a class="btn small-btn" href="#'+L.id+'" data-go>Go to lesson</a>':'')+'<button type="button" class="btn ghost small-btn" data-unpin="'+p.id+'">Unpin</button></div></article>';
+}
+function noteCard(L){
+  return '<article class="pin-card"><header><span class="pin-kind">Notes</span><b>'+esc(L.title)+'</b></header><textarea data-lnote="'+L.id+'" aria-label="Notes for '+esc(L.title)+'" placeholder="Notes for this lesson…">'+esc(S.notes[L.id]||"")+'</textarea>'+
+   (L.id!==curId?'<div class="pin-actions"><a class="btn small-btn" href="#'+L.id+'" data-go>Go to lesson</a></div>':'')+'</article>';
+}
+function drawDrawer(){
+  const L=curId?LESSONS.find(l=>l.id===curId):null;
+  if(!L&&DR.mode==="lesson") DR.mode="all";
+  drawer.querySelectorAll("[data-drm]").forEach(b=>{b.classList.toggle("on",b.dataset.drm===DR.mode);b.disabled=b.dataset.drm==="lesson"&&!L;});
+  const q=DR.q.trim().toLowerCase(); let h="";
+  if(DR.mode==="lesson"&&L){
+    h+='<h3>'+esc(L.title)+'</h3>';
+    if(matches(q,[S.notes[L.id]||""])) h+=noteCard(L);
+    const ps=S.pins.filter(p=>p.lid===L.id&&matches(q,[p.title,p.text,p.note]));
+    h+=ps.length?ps.map(p=>pinCard(p,false)).join(""):(q?"":'<p class="dr-empty">Nothing pinned from this lesson yet. Tap <b>Pin</b> next to a heading or box, or select any text and tap <b>Pin selection</b>.</p>');
+  } else {
+    const groups=[];
+    LESSONS.forEach(l=>{const ps=S.pins.filter(p=>p.lid===l.id&&matches(q,[p.title,p.text,p.note,l.title])); const nt=(S.notes[l.id]||"").trim()&&matches(q,[S.notes[l.id],l.title]);
+      if(ps.length||nt) groups.push('<section class="dr-group"><h3><a href="#'+l.id+'" data-go>'+esc(l.title)+'</a></h3>'+(nt?noteCard(l):"")+ps.map(p=>pinCard(p,false)).join("")+'</section>');});
+    const other=S.pins.filter(p=>!p.lid&&matches(q,[p.title,p.text,p.note]));
+    if(other.length) groups.push('<section class="dr-group"><h3>Other pages</h3>'+other.map(p=>pinCard(p,true)).join("")+'</section>');
+    h+=groups.length?groups.join(""):'<p class="dr-empty">'+(q?'Nothing matches "'+esc(DR.q)+'".':'No notes or pins yet. In any lesson, tap <b>Pin</b> next to a heading or box, select text and tap <b>Pin selection</b>, or write in <b>My notes</b>.')+'</p>';
+  }
+  document.getElementById("drBody").innerHTML=h;
+  drawer.querySelectorAll(".pin-html .pin-sec").forEach(b=>b.remove());
+}
+function syncDrawerNote(id,t){const ta=drawer.querySelector('[data-lnote="'+id+'"]'); if(ta&&ta!==document.activeElement) ta.value=t;}
+function openDrawer(){DR.open=true;DR.mode=curId?"lesson":"all";drawer.hidden=false;document.getElementById("notesBtn").setAttribute("aria-expanded","true");drawDrawer();}
+function closeDrawer(){DR.open=false;drawer.hidden=true;document.getElementById("notesBtn").setAttribute("aria-expanded","false");}
+document.getElementById("notesBtn").onclick=()=>DR.open?closeDrawer():openDrawer();
+drawer.addEventListener("click",e=>{
+  if(e.target.closest(".dr-close")){closeDrawer();return;}
+  const m=e.target.closest("[data-drm]"); if(m){DR.mode=m.dataset.drm;drawDrawer();return;}
+  const u=e.target.closest("[data-unpin]"); if(u){removePin(u.dataset.unpin);return;}
+  if(e.target.closest("[data-go]")&&matchMedia("(max-width:860px)").matches) closeDrawer();
+});
+drawer.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.id==="drSearch"){DR.q=t.value;drawDrawer();return;}
+  if(t.dataset.pnote){const p=S.pins.find(x=>x.id===t.dataset.pnote); if(p){p.note=t.value;saveSoon();} return;}
+  if(t.dataset.lnote){const id=t.dataset.lnote; if(t.value.trim()) S.notes[id]=t.value; else delete S.notes[id]; saveSoon(); badge(); const ln=document.getElementById("lessonNote"); if(ln&&curId===id) ln.value=t.value;}
+});
+document.getElementById("drCopy").addEventListener("click",e=>{
+  const lines=[];
+  LESSONS.forEach(l=>{const ps=S.pins.filter(p=>p.lid===l.id), nt=(S.notes[l.id]||"").trim(); if(!ps.length&&!nt) return;
+    lines.push("## "+l.title); if(nt) lines.push("Notes: "+nt);
+    ps.forEach(p=>{lines.push("- "+(p.title||"")+": "+(p.text||"").trim()); if(p.note) lines.push("  My note: "+p.note);}); lines.push("");});
+  S.pins.filter(p=>!p.lid).forEach(p=>{lines.push("- "+p.title+": "+p.text+(p.note?"\n  My note: "+p.note:""));});
+  const text=lines.join("\n")||"No notes yet.", btn=e.currentTarget;
+  const fallback=()=>{let ta=drawer.querySelector(".copy-ta"); if(!ta){ta=document.createElement("textarea");ta.className="copy-ta";ta.rows=8;btn.after(ta);} ta.value=text; ta.select(); btn.textContent="Selected: long-press and copy";};
+  try{navigator.clipboard.writeText(text).then(()=>{btn.textContent="Copied";setTimeout(()=>btn.textContent="Copy all notes",1800);},fallback);}catch(err){fallback();}
+});
+
+updateProgress(); badge(); route();
+</script>
+</body>
+</html>
